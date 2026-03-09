@@ -28,7 +28,6 @@ export function ArrayKeyEditor({
   onAddElement,
   onClearEmpty,
 }: ArrayKeyEditorProps) {
-  // Find max array length across languages for syncing view
   let maxLength = 0;
   data.forEach((loc) => {
     const val = selectedKey.values[loc.languageCode];

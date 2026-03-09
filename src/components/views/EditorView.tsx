@@ -15,6 +15,7 @@ export function EditorView({ data }: EditorViewProps) {
 
   const [leftWidth, setLeftWidth] = useState(300);
   const isDragging = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const keyMap = new Map<string, UnifiedKey>();
@@ -44,13 +45,13 @@ export function EditorView({ data }: EditorViewProps) {
   }, [keys]);
 
   const selectedKey = useMemo(
-    () => (selectedKeyName ? keyMap.get(selectedKeyName) ?? null : null),
-    [keyMap, selectedKeyName]
+    () => (selectedKeyName ? (keyMap.get(selectedKeyName) ?? null) : null),
+    [keyMap, selectedKeyName],
   );
 
   const stableSetSelectedKeyName = useCallback(
     (name: string | null) => setSelectedKeyName(name),
-    []
+    [],
   );
 
   const handleMouseDown = useCallback(() => {
@@ -66,10 +67,20 @@ export function EditorView({ data }: EditorViewProps) {
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging.current) return;
-      const newWidth = Math.max(
-        150,
-        Math.min(e.clientX - 60, window.innerWidth * 0.5)
-      );
+      
+      let newWidth = 300;
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        newWidth = Math.max(
+          150,
+          Math.min(e.clientX - rect.left, rect.width * 0.6)
+        );
+      } else {
+        newWidth = Math.max(
+          150,
+          Math.min(e.clientX - 60, window.innerWidth * 0.6)
+        );
+      }
       setLeftWidth(newWidth);
     };
 
@@ -91,10 +102,10 @@ export function EditorView({ data }: EditorViewProps) {
             ...k,
             values: { ...k.values, [langCode]: newValue },
           };
-        })
+        }),
       );
     },
-    [selectedKeyName]
+    [selectedKeyName],
   );
 
   const handleArrayElementChange = useCallback(
@@ -110,10 +121,10 @@ export function EditorView({ data }: EditorViewProps) {
             ...k,
             values: { ...k.values, [langCode]: arr },
           };
-        })
+        }),
       );
     },
-    [selectedKeyName]
+    [selectedKeyName],
   );
 
   const handleRemoveArrayElement = useCallback(
@@ -130,10 +141,10 @@ export function EditorView({ data }: EditorViewProps) {
             }
           });
           return { ...k, values: newVals };
-        })
+        }),
       );
     },
-    [selectedKeyName, data]
+    [selectedKeyName, data],
   );
 
   const handleAddArrayElement = useCallback(() => {
@@ -149,12 +160,11 @@ export function EditorView({ data }: EditorViewProps) {
           newVals[loc.languageCode] = arr;
         });
         return { ...k, values: newVals };
-      })
+      }),
     );
   }, [selectedKeyName, data]);
 
-  const handleClearEmptyArrayElements = useCallback(() => {
-  }, []);
+  const handleClearEmptyArrayElements = useCallback(() => {}, []);
 
   const handleDeleteKey = useCallback(() => {
     setKeys((prev) => prev.filter((k) => k.name !== selectedKeyName));
@@ -163,7 +173,7 @@ export function EditorView({ data }: EditorViewProps) {
 
   return (
     <Card style={{ height: "100%", padding: 0, overflow: "hidden" }}>
-      <Flex style={{ height: "100%", width: "100%" }}>
+      <Flex ref={containerRef} style={{ height: "100%", width: "100%" }}>
         <KeyListSidebar
           width={leftWidth}
           keys={keys}
