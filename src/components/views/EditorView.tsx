@@ -1,134 +1,220 @@
-import {
-  Flex,
-  Heading,
-  Card,
-  Tabs,
-  Badge,
-  ScrollArea,
-  Table,
-  Code,
-  Text,
-} from "@radix-ui/themes";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { Flex, Card } from "@radix-ui/themes";
 import { LocaleData } from "../../lib/bloc";
+import { UnifiedKey } from "./editor/types";
+import { KeyListSidebar } from "./editor/KeyListSidebar";
+import { KeyDetailsPanel } from "./editor/KeyDetailsPanel";
 
 interface EditorViewProps {
   data: LocaleData[];
 }
 
 export function EditorView({ data }: EditorViewProps) {
+  // We'll manage local edits of keys based on initial data
+  const [keys, setKeys] = useState<UnifiedKey[]>([]);
+  const [selectedKeyName, setSelectedKeyName] = useState<string | null>(null);
+
+  // Resizable sidebar state
+  const [leftWidth, setLeftWidth] = useState(300);
+  const isDragging = useRef(false);
+
+  // Extract all unique keys from provided Locales on mount
+  useEffect(() => {
+    const keyMap = new Map<string, UnifiedKey>();
+
+    data.forEach((locale) => {
+      Object.entries(locale.translations).forEach(([key, value]) => {
+        if (!keyMap.has(key)) {
+          keyMap.set(key, {
+            name: key,
+            type: Array.isArray(value) ? "array" : "string",
+            values: {},
+          });
+        }
+        keyMap.get(key)!.values[locale.languageCode] = value;
+      });
+    });
+
+    setKeys(Array.from(keyMap.values()));
+  }, [data]);
+
+  // Selected key data
+  const selectedKey = useMemo(
+    () => keys.find((k) => k.name === selectedKeyName) || null,
+    [keys, selectedKeyName]
+  );
+
+  // Drag resizer handlers
+  const handleMouseDown = useCallback(() => {
+    isDragging.current = true;
+    document.body.style.cursor = "col-resize";
+  }, []);
+
+  useEffect(() => {
+    const handleMouseUp = () => {
+      isDragging.current = false;
+      document.body.style.cursor = "default";
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return;
+      const newWidth = Math.max(
+        150,
+        Math.min(e.clientX - 60, window.innerWidth * 0.5)
+      ); // -60 roughly accounts for app sidebar
+      setLeftWidth(newWidth);
+    };
+
+    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("mousemove", handleMouseMove);
+
+    return () => {
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
+
+  // Update handlers (for local state simulation)
+  const handleStringValueChange = (langCode: string, newValue: string) => {
+    if (!selectedKey) return;
+    setKeys((prev) =>
+      prev.map((k) => {
+        if (k.name === selectedKey.name) {
+          return {
+            ...k,
+            values: { ...k.values, [langCode]: newValue },
+          };
+        }
+        return k;
+      })
+    );
+  };
+
+  const handleArrayElementChange = (
+    langCode: string,
+    index: number,
+    newValue: string
+  ) => {
+    if (!selectedKey || selectedKey.type !== "array") return;
+    setKeys((prev) =>
+      prev.map((k) => {
+        if (k.name === selectedKey.name) {
+          const arr = Array.isArray(k.values[langCode])
+            ? [...(k.values[langCode] as string[])]
+            : [];
+          arr[index] = newValue;
+          return {
+            ...k,
+            values: { ...k.values, [langCode]: arr },
+          };
+        }
+        return k;
+      })
+    );
+  };
+
+  const handleRemoveArrayElement = (index: number) => {
+    if (!selectedKey) return;
+    setKeys((prev) =>
+      prev.map((k) => {
+        if (k.name !== selectedKey.name) return k;
+        const newVals = { ...k.values };
+        data.forEach((loc) => {
+          if (Array.isArray(newVals[loc.languageCode])) {
+            const arr = [...(newVals[loc.languageCode] as string[])];
+            arr.splice(index, 1);
+            newVals[loc.languageCode] = arr;
+          }
+        });
+        return { ...k, values: newVals };
+      })
+    );
+  };
+
+  const handleAddArrayElement = () => {
+    if (!selectedKey) return;
+    setKeys((prev) =>
+      prev.map((k) => {
+        if (k.name !== selectedKey.name) return k;
+        const newVals = { ...k.values };
+        data.forEach((loc) => {
+          const arr = Array.isArray(newVals[loc.languageCode])
+            ? [...(newVals[loc.languageCode] as string[])]
+            : [];
+          arr.push("");
+          newVals[loc.languageCode] = arr;
+        });
+        return { ...k, values: newVals };
+      })
+    );
+  };
+
+  const handleClearEmptyArrayElements = () => {
+    // Basic implementation outline
+  };
+
+  const handleDeleteKey = () => {
+    if (!selectedKey) return;
+    setKeys(keys.filter((k) => k.name !== selectedKey.name));
+    setSelectedKeyName(null);
+  };
+
   return (
-    <Flex direction="column" gap="4" style={{ height: "100%" }}>
-      <Flex align="center" justify="between">
-        <Heading size="6">Localization Editor</Heading>
-      </Flex>
+    <Card style={{ height: "100%", padding: 0, overflow: "hidden" }}>
+      <Flex style={{ height: "100%", width: "100%" }}>
+        {/* LEFT PANEL */}
+        <KeyListSidebar
+          width={leftWidth}
+          keys={keys}
+          setKeys={setKeys}
+          selectedKeyName={selectedKeyName}
+          setSelectedKeyName={setSelectedKeyName}
+        />
 
-      <Tabs.Root
-        defaultValue="0"
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          minHeight: 0,
-        }}
-      >
-        <Tabs.List>
-          {data.map((locale, index) => (
-            <Tabs.Trigger key={index} value={String(index)}>
-              {locale.languageCode || `File ${index + 1}`}
-            </Tabs.Trigger>
-          ))}
-        </Tabs.List>
+        {/* RESIZER DRAG HANDLE */}
+        <div
+          style={{
+            width: "4px",
+            backgroundColor: "transparent",
+            cursor: "col-resize",
+            zIndex: 10,
+            transition: "background-color 0.2s",
+          }}
+          onMouseDown={handleMouseDown}
+          onMouseEnter={(e) => {
+            if (!isDragging.current) {
+              e.currentTarget.style.backgroundColor = "var(--accent-a7)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isDragging.current) {
+              e.currentTarget.style.backgroundColor = "transparent";
+            }
+          }}
+        />
 
-        <Card
-          mt="2"
+        {/* RIGHT PANEL - KEY DETAILS */}
+        <Flex
+          direction="column"
           style={{
             flex: 1,
-            padding: 0,
+            backgroundColor: "var(--color-panel-solid)",
             overflow: "hidden",
           }}
         >
-          {data.map((parsedData, index) => (
-            <Tabs.Content
-              key={index}
-              value={String(index)}
-              style={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <Flex
-                gap="3"
-                align="center"
-                p="3"
-                style={{ borderBottom: "1px solid var(--gray-a4)" }}
-              >
-                <Badge size="2" color="blue">
-                  Version: {parsedData.version}
-                </Badge>
-                <Badge size="2" color="green">
-                  Language: {parsedData.languageCode}
-                </Badge>
-                <Badge size="2" color="orange">
-                  Total Keys: {Object.keys(parsedData.translations).length}
-                </Badge>
-              </Flex>
-
-              <ScrollArea
-                type="auto"
-                scrollbars="both"
-                style={{ flex: 1, height: "100%" }}
-              >
-                <Table.Root variant="surface">
-                  <Table.Header>
-                    <Table.Row>
-                      <Table.ColumnHeaderCell>Key Name</Table.ColumnHeaderCell>
-                      <Table.ColumnHeaderCell>
-                        Extracted Value
-                      </Table.ColumnHeaderCell>
-                    </Table.Row>
-                  </Table.Header>
-                  <Table.Body>
-                    {Object.entries(parsedData.translations).map(
-                      ([key, value]) => (
-                        <Table.Row key={key}>
-                          <Table.RowHeaderCell>
-                            <Code variant="ghost">{key}</Code>
-                          </Table.RowHeaderCell>
-                          <Table.Cell>
-                            {Array.isArray(value) ? (
-                              <Flex direction="column" gap="1">
-                                {value.map((v, i) => (
-                                  <Text key={i} size="2">
-                                    • {v}
-                                  </Text>
-                                ))}
-                              </Flex>
-                            ) : (
-                              <Text size="2">
-                                {value === null || value === undefined ? (
-                                  <Text
-                                    color="gray"
-                                    style={{ fontStyle: "italic" }}
-                                  >
-                                    null
-                                  </Text>
-                                ) : (
-                                  String(value)
-                                )}
-                              </Text>
-                            )}
-                          </Table.Cell>
-                        </Table.Row>
-                      ),
-                    )}
-                  </Table.Body>
-                </Table.Root>
-              </ScrollArea>
-            </Tabs.Content>
-          ))}
-        </Card>
-      </Tabs.Root>
-    </Flex>
+          <KeyDetailsPanel
+            data={data}
+            selectedKey={selectedKey}
+            onDeleteKey={handleDeleteKey}
+            onStringValueChange={handleStringValueChange}
+            onArrayElementChange={handleArrayElementChange}
+            onRemoveArrayElement={handleRemoveArrayElement}
+            onAddArrayElement={handleAddArrayElement}
+            onClearEmptyArrayElements={handleClearEmptyArrayElements}
+          />
+        </Flex>
+      </Flex>
+    </Card>
   );
 }
+

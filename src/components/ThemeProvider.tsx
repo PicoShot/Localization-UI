@@ -1,17 +1,21 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Theme } from "@radix-ui/themes";
-
-type ThemeType = "light" | "dark";
+import {
+  //getCurrentWindow,
+  type Theme as TauriTheme,
+} from "@tauri-apps/api/window";
 
 interface ThemeContextType {
-  theme: ThemeType;
+  theme: TauriTheme;
   toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<ThemeType>("dark");
+  const [theme, setTheme] = useState<TauriTheme>("dark");
+
+  //const systemTheme = await getCurrentWindow().theme();
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));

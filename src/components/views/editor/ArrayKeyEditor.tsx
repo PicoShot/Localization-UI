@@ -1,0 +1,104 @@
+import {
+  Flex,
+  Box,
+  Text,
+  Card,
+  IconButton,
+  TextField,
+  Button,
+} from "@radix-ui/themes";
+import { X, Plus, Eraser } from "lucide-react";
+import { LocaleData } from "../../../lib/bloc";
+import { UnifiedKey } from "./types";
+
+interface ArrayKeyEditorProps {
+  data: LocaleData[];
+  selectedKey: UnifiedKey;
+  onElementChange: (langCode: string, index: number, newValue: string) => void;
+  onRemoveElement: (index: number) => void;
+  onAddElement: () => void;
+  onClearEmpty: () => void;
+}
+
+export function ArrayKeyEditor({
+  data,
+  selectedKey,
+  onElementChange,
+  onRemoveElement,
+  onAddElement,
+  onClearEmpty,
+}: ArrayKeyEditorProps) {
+  // Find max array length across languages for syncing view
+  let maxLength = 0;
+  data.forEach((loc) => {
+    const val = selectedKey.values[loc.languageCode];
+    if (Array.isArray(val) && val.length > maxLength) {
+      maxLength = val.length;
+    }
+  });
+
+  const elements = Array.from({ length: maxLength });
+
+  return (
+    <Flex direction="column" gap="5">
+      <Text size="3" weight="bold" color="gray">
+        Array Elements
+      </Text>
+
+      {elements.map((_, i) => (
+        <Card key={i} size="1" variant="surface">
+          <Flex direction="column" gap="3">
+            <Flex justify="between" align="center">
+              <Text size="2" weight="bold">
+                Element {i}
+              </Text>
+              <IconButton
+                size="1"
+                variant="ghost"
+                color="red"
+                onClick={() => onRemoveElement(i)}
+              >
+                <X size={14} />
+              </IconButton>
+            </Flex>
+
+            {data.map((locale) => {
+              const valArr = selectedKey.values[locale.languageCode] as
+                | string[]
+                | undefined;
+              const val = valArr ? valArr[i] : "";
+              return (
+                <Box key={locale.languageCode}>
+                  <Text
+                    as="label"
+                    size="1"
+                    color="gray"
+                    style={{ display: "block", marginBottom: "4px" }}
+                  >
+                    {locale.languageCode.toUpperCase()}:
+                  </Text>
+                  <TextField.Root
+                    value={val || ""}
+                    onChange={(e) =>
+                      onElementChange(locale.languageCode, i, e.target.value)
+                    }
+                    placeholder={`Element ${i} in ${locale.languageCode}`}
+                  />
+                </Box>
+              );
+            })}
+          </Flex>
+        </Card>
+      ))}
+
+      <Flex gap="2">
+        <Button variant="soft" onClick={onAddElement}>
+          <Plus size={16} /> Add New Element
+        </Button>
+        <Button variant="soft" color="gray" onClick={onClearEmpty}>
+          <Eraser size={16} /> Clear Empty
+        </Button>
+      </Flex>
+    </Flex>
+  );
+}
