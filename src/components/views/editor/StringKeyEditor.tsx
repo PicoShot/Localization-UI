@@ -1,6 +1,8 @@
 import { Flex, Box, Text, TextField } from "@radix-ui/themes";
 import { LocaleData } from "../../../lib/bloc";
 import { UnifiedKey } from "./types";
+import { useState } from "react";
+import { RichTextEditorModal } from "./RichTextEditorModal";
 
 interface StringKeyEditorProps {
   data: LocaleData[];
@@ -13,6 +15,8 @@ export function StringKeyEditor({
   selectedKey,
   onChange,
 }: StringKeyEditorProps) {
+  const [editingLang, setEditingLang] = useState<string | null>(null);
+
   return (
     <Flex direction="column" gap="4">
       {data.map((locale) => (
@@ -30,13 +34,33 @@ export function StringKeyEditor({
           <TextField.Root
             value={(selectedKey.values[locale.languageCode] as string) || ""}
             onChange={(e) => onChange(locale.languageCode, e.target.value)}
+            onDoubleClick={() => setEditingLang(locale.languageCode)}
             placeholder={`Value in ${locale.languageCode}...`}
             style={{
               fontFamily: "inherit",
+              cursor: "text",
             }}
           />
         </Box>
       ))}
+
+      <RichTextEditorModal
+        open={editingLang !== null}
+        onOpenChange={(open) => {
+          if (!open) setEditingLang(null);
+        }}
+        initialValue={
+          editingLang
+            ? ((selectedKey.values[editingLang] as string) || "")
+            : ""
+        }
+        onSave={(val) => {
+          if (editingLang) {
+            onChange(editingLang, val);
+          }
+        }}
+        title={`Edit Value - ${editingLang?.toUpperCase()}`}
+      />
     </Flex>
   );
 }

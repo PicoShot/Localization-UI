@@ -10,6 +10,8 @@ import {
 import { X, Plus, Eraser } from "lucide-react";
 import { LocaleData } from "../../../lib/bloc";
 import { UnifiedKey } from "./types";
+import { useState } from "react";
+import { RichTextEditorModal } from "./RichTextEditorModal";
 
 interface ArrayKeyEditorProps {
   data: LocaleData[];
@@ -28,6 +30,11 @@ export function ArrayKeyEditor({
   onAddElement,
   onClearEmpty,
 }: ArrayKeyEditorProps) {
+  const [editingCell, setEditingCell] = useState<{
+    langCode: string;
+    index: number;
+  } | null>(null);
+
   let maxLength = 0;
   data.forEach((loc) => {
     const val = selectedKey.values[loc.languageCode];
@@ -81,7 +88,11 @@ export function ArrayKeyEditor({
                     onChange={(e) =>
                       onElementChange(locale.languageCode, i, e.target.value)
                     }
+                    onDoubleClick={() =>
+                      setEditingCell({ langCode: locale.languageCode, index: i })
+                    }
                     placeholder={`Element ${i} in ${locale.languageCode}`}
+                    style={{ cursor: "text" }}
                   />
                 </Box>
               );
@@ -98,6 +109,30 @@ export function ArrayKeyEditor({
           <Eraser size={16} /> Clear Empty
         </Button>
       </Flex>
+
+      <RichTextEditorModal
+        open={editingCell !== null}
+        onOpenChange={(open) => {
+          if (!open) setEditingCell(null);
+        }}
+        initialValue={
+          editingCell
+            ? (((selectedKey.values[editingCell.langCode] as
+                | string[]
+                | undefined)?.[editingCell.index]) || "")
+            : ""
+        }
+        onSave={(val) => {
+          if (editingCell) {
+            onElementChange(editingCell.langCode, editingCell.index, val);
+          }
+        }}
+        title={
+          editingCell
+            ? `Edit Element ${editingCell.index} - ${editingCell.langCode.toUpperCase()}`
+            : "Edit Text"
+        }
+      />
     </Flex>
   );
 }
