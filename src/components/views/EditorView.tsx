@@ -10,15 +10,12 @@ interface EditorViewProps {
 }
 
 export function EditorView({ data }: EditorViewProps) {
-  // We'll manage local edits of keys based on initial data
   const [keys, setKeys] = useState<UnifiedKey[]>([]);
   const [selectedKeyName, setSelectedKeyName] = useState<string | null>(null);
 
-  // Resizable sidebar state
   const [leftWidth, setLeftWidth] = useState(300);
   const isDragging = useRef(false);
 
-  // Extract all unique keys from provided Locales on mount
   useEffect(() => {
     const keyMap = new Map<string, UnifiedKey>();
 
@@ -38,13 +35,24 @@ export function EditorView({ data }: EditorViewProps) {
     setKeys(Array.from(keyMap.values()));
   }, [data]);
 
-  // Selected key data
+  const keyMap = useMemo(() => {
+    const map = new Map<string, UnifiedKey>();
+    for (const k of keys) {
+      map.set(k.name, k);
+    }
+    return map;
+  }, [keys]);
+
   const selectedKey = useMemo(
-    () => keys.find((k) => k.name === selectedKeyName) || null,
-    [keys, selectedKeyName]
+    () => (selectedKeyName ? keyMap.get(selectedKeyName) ?? null : null),
+    [keyMap, selectedKeyName]
   );
 
-  // Drag resizer handlers
+  const stableSetSelectedKeyName = useCallback(
+    (name: string | null) => setSelectedKeyName(name),
+    []
+  );
+
   const handleMouseDown = useCallback(() => {
     isDragging.current = true;
     document.body.style.cursor = "col-resize";
@@ -61,7 +69,7 @@ export function EditorView({ data }: EditorViewProps) {
       const newWidth = Math.max(
         150,
         Math.min(e.clientX - 60, window.innerWidth * 0.5)
-      ); // -60 roughly accounts for app sidebar
+      );
       setLeftWidth(newWidth);
     };
 
@@ -74,31 +82,26 @@ export function EditorView({ data }: EditorViewProps) {
     };
   }, []);
 
-  // Update handlers (for local state simulation)
-  const handleStringValueChange = (langCode: string, newValue: string) => {
-    if (!selectedKey) return;
-    setKeys((prev) =>
-      prev.map((k) => {
-        if (k.name === selectedKey.name) {
+  const handleStringValueChange = useCallback(
+    (langCode: string, newValue: string) => {
+      setKeys((prev) =>
+        prev.map((k) => {
+          if (k.name !== selectedKeyName) return k;
           return {
             ...k,
             values: { ...k.values, [langCode]: newValue },
           };
-        }
-        return k;
-      })
-    );
-  };
+        })
+      );
+    },
+    [selectedKeyName]
+  );
 
-  const handleArrayElementChange = (
-    langCode: string,
-    index: number,
-    newValue: string
-  ) => {
-    if (!selectedKey || selectedKey.type !== "array") return;
-    setKeys((prev) =>
-      prev.map((k) => {
-        if (k.name === selectedKey.name) {
+  const handleArrayElementChange = useCallback(
+    (langCode: string, index: number, newValue: string) => {
+      setKeys((prev) =>
+        prev.map((k) => {
+          if (k.name !== selectedKeyName) return k;
           const arr = Array.isArray(k.values[langCode])
             ? [...(k.values[langCode] as string[])]
             : [];
@@ -107,35 +110,36 @@ export function EditorView({ data }: EditorViewProps) {
             ...k,
             values: { ...k.values, [langCode]: arr },
           };
-        }
-        return k;
-      })
-    );
-  };
+        })
+      );
+    },
+    [selectedKeyName]
+  );
 
-  const handleRemoveArrayElement = (index: number) => {
-    if (!selectedKey) return;
+  const handleRemoveArrayElement = useCallback(
+    (index: number) => {
+      setKeys((prev) =>
+        prev.map((k) => {
+          if (k.name !== selectedKeyName) return k;
+          const newVals = { ...k.values };
+          data.forEach((loc) => {
+            if (Array.isArray(newVals[loc.languageCode])) {
+              const arr = [...(newVals[loc.languageCode] as string[])];
+              arr.splice(index, 1);
+              newVals[loc.languageCode] = arr;
+            }
+          });
+          return { ...k, values: newVals };
+        })
+      );
+    },
+    [selectedKeyName, data]
+  );
+
+  const handleAddArrayElement = useCallback(() => {
     setKeys((prev) =>
       prev.map((k) => {
-        if (k.name !== selectedKey.name) return k;
-        const newVals = { ...k.values };
-        data.forEach((loc) => {
-          if (Array.isArray(newVals[loc.languageCode])) {
-            const arr = [...(newVals[loc.languageCode] as string[])];
-            arr.splice(index, 1);
-            newVals[loc.languageCode] = arr;
-          }
-        });
-        return { ...k, values: newVals };
-      })
-    );
-  };
-
-  const handleAddArrayElement = () => {
-    if (!selectedKey) return;
-    setKeys((prev) =>
-      prev.map((k) => {
-        if (k.name !== selectedKey.name) return k;
+        if (k.name !== selectedKeyName) return k;
         const newVals = { ...k.values };
         data.forEach((loc) => {
           const arr = Array.isArray(newVals[loc.languageCode])
@@ -147,31 +151,27 @@ export function EditorView({ data }: EditorViewProps) {
         return { ...k, values: newVals };
       })
     );
-  };
+  }, [selectedKeyName, data]);
 
-  const handleClearEmptyArrayElements = () => {
-    // Basic implementation outline
-  };
+  const handleClearEmptyArrayElements = useCallback(() => {
+  }, []);
 
-  const handleDeleteKey = () => {
-    if (!selectedKey) return;
-    setKeys(keys.filter((k) => k.name !== selectedKey.name));
+  const handleDeleteKey = useCallback(() => {
+    setKeys((prev) => prev.filter((k) => k.name !== selectedKeyName));
     setSelectedKeyName(null);
-  };
+  }, [selectedKeyName]);
 
   return (
     <Card style={{ height: "100%", padding: 0, overflow: "hidden" }}>
       <Flex style={{ height: "100%", width: "100%" }}>
-        {/* LEFT PANEL */}
         <KeyListSidebar
           width={leftWidth}
           keys={keys}
           setKeys={setKeys}
           selectedKeyName={selectedKeyName}
-          setSelectedKeyName={setSelectedKeyName}
+          setSelectedKeyName={stableSetSelectedKeyName}
         />
 
-        {/* RESIZER DRAG HANDLE */}
         <div
           style={{
             width: "4px",
@@ -193,7 +193,6 @@ export function EditorView({ data }: EditorViewProps) {
           }}
         />
 
-        {/* RIGHT PANEL - KEY DETAILS */}
         <Flex
           direction="column"
           style={{
@@ -217,4 +216,3 @@ export function EditorView({ data }: EditorViewProps) {
     </Card>
   );
 }
-

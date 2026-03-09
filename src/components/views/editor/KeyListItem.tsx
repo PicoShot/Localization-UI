@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Box, Flex, Text, ContextMenu } from "@radix-ui/themes";
 import { Edit2, Trash2, Languages, Copy, Code2, Eraser } from "lucide-react";
 import { UnifiedKey } from "./types";
@@ -8,7 +9,11 @@ interface KeyListItemProps {
   onSelect: (name: string) => void;
 }
 
-export function KeyListItem({ item, isSelected, onSelect }: KeyListItemProps) {
+export const KeyListItem = memo(function KeyListItem({
+  item,
+  isSelected,
+  onSelect,
+}: KeyListItemProps) {
   return (
     <ContextMenu.Root>
       <ContextMenu.Trigger>
@@ -116,4 +121,5 @@ export function KeyListItem({ item, isSelected, onSelect }: KeyListItemProps) {
       </ContextMenu.Content>
     </ContextMenu.Root>
   );
-}
+});
+

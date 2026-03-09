@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, memo } from "react";
 import { Flex, Button, TextField, IconButton, Checkbox, Text, ScrollArea } from "@radix-ui/themes";
 import { Type, List, Search, X } from "lucide-react";
 import { UnifiedKey } from "./types";
@@ -12,7 +12,7 @@ interface KeyListSidebarProps {
   setSelectedKeyName: (name: string | null) => void;
 }
 
-export function KeyListSidebar({
+export const KeyListSidebar = memo(function KeyListSidebar({
   width,
   keys,
   setKeys,
@@ -43,6 +43,11 @@ export function KeyListSidebar({
 
     return result;
   }, [keys, searchQuery, showStrings, showArrays, sortByName]);
+
+  const handleSelect = useCallback(
+    (name: string) => setSelectedKeyName(name),
+    [setSelectedKeyName]
+  );
 
   return (
     <Flex
@@ -150,11 +155,12 @@ export function KeyListSidebar({
               key={k.name}
               item={k}
               isSelected={k.name === selectedKeyName}
-              onSelect={setSelectedKeyName}
+              onSelect={handleSelect}
             />
           ))}
         </Flex>
       </ScrollArea>
     </Flex>
   );
-}
+});
+
