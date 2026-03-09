@@ -37,7 +37,7 @@ function App() {
       }}
     >
       <TitleBar />
-      <Flex direction="column" p="6" style={{ flex: 1, minHeight: 0 }}>
+      <Flex direction="column" p="4" style={{ flex: 1, minHeight: 0 }}>
         {parsedDataList.length === 0 ? (
           <MainPage
             onParsed={handleParsed}
