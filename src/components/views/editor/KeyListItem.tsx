@@ -43,7 +43,7 @@ export function KeyListItem({ item, isSelected, onSelect }: KeyListItemProps) {
           weight="bold"
           style={{ fontFamily: "monospace", width: "20px" }}
         >
-          {item.type === "string" ? "Aa" : "[ ]"}
+          {item.type === "string" ? "Aa" : "[]"}
         </Text>
         <Text
           size="2"
