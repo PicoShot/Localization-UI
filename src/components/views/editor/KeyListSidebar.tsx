@@ -1,6 +1,14 @@
 import { useState, useMemo, useCallback, memo } from "react";
-import { Flex, Button, TextField, IconButton, Checkbox, Text, ScrollArea } from "@radix-ui/themes";
-import { Type, List, Search, X } from "lucide-react";
+import {
+  Flex,
+  Button,
+  TextField,
+  IconButton,
+  Checkbox,
+  Text,
+  ScrollArea,
+} from "@radix-ui/themes";
+import { Plus, Search, X } from "lucide-react";
 import { UnifiedKey } from "./types";
 import { KeyListItem } from "./KeyListItem";
 
@@ -46,7 +54,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
 
   const handleSelect = useCallback(
     (name: string) => setSelectedKeyName(name),
-    [setSelectedKeyName]
+    [setSelectedKeyName],
   );
 
   return (
@@ -64,27 +72,11 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         <Button
           variant="soft"
           size="2"
-          style={{ flex: 1 }}
-          onClick={() => {
-            const newName = "new_string_key_" + Date.now();
-            setKeys([...keys, { name: newName, type: "string", values: {} }]);
-            setSelectedKeyName(newName);
-          }}
-        >
-          <Type size={16} /> String Key
-        </Button>
-        <Button
-          variant="soft"
-          size="2"
           color="indigo"
           style={{ flex: 1 }}
-          onClick={() => {
-            const newName = "new_array_key_" + Date.now();
-            setKeys([...keys, { name: newName, type: "array", values: {} }]);
-            setSelectedKeyName(newName);
-          }}
+          onClick={() => {}}
         >
-          <List size={16} /> Array Key
+          <Plus size={18} /> Add Key
         </Button>
       </Flex>
 
@@ -107,7 +99,11 @@ export const KeyListSidebar = memo(function KeyListSidebar({
             </TextField.Slot>
           </TextField.Root>
           {searchQuery && (
-            <IconButton variant="ghost" size="2" onClick={() => setSearchQuery("")}>
+            <IconButton
+              variant="ghost"
+              size="2"
+              onClick={() => setSearchQuery("")}
+            >
               <X size={16} />
             </IconButton>
           )}
@@ -163,4 +159,3 @@ export const KeyListSidebar = memo(function KeyListSidebar({
     </Flex>
   );
 });
-

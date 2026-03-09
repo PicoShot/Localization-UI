@@ -1,4 +1,4 @@
-import { Flex, Box, Text, TextArea } from "@radix-ui/themes";
+import { Flex, Box, Text, TextField } from "@radix-ui/themes";
 import { LocaleData } from "../../../lib/bloc";
 import { UnifiedKey } from "./types";
 
@@ -19,7 +19,7 @@ export function StringKeyEditor({
         <Box key={locale.languageCode}>
           <Text
             as="label"
-            size="2"
+            size="1"
             weight="bold"
             color="gray"
             mb="1"
@@ -27,8 +27,7 @@ export function StringKeyEditor({
           >
             {locale.languageCode.toUpperCase()}
           </Text>
-          <TextArea
-            size="2"
+          <TextField.Root
             value={(selectedKey.values[locale.languageCode] as string) || ""}
             onChange={(e) => onChange(locale.languageCode, e.target.value)}
             placeholder={`Value in ${locale.languageCode}...`}
