@@ -22,7 +22,7 @@
         "maximizable": true,
         "minimizable": true,
         "dragDropEnabled": false,
-        "decorations": true
+        "decorations": false
       }
     ],
     "security": {

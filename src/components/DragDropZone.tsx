@@ -24,7 +24,6 @@ export function DragDropZone({ onParsed, onError }: DragDropZoneProps) {
     setIsDragActive(false);
   }, []);
 
-  // Helper to read standard web File objects sequentially
   const processWebFiles = async (files: File[]) => {
     const parsedFiles: LocaleData[] = [];
     for (const file of files) {
@@ -68,7 +67,6 @@ export function DragDropZone({ onParsed, onError }: DragDropZoneProps) {
       } else if (entry.isDirectory) {
         const reader = entry.createReader();
         const entries = await new Promise<any[]>((resolve) => {
-          // readEntries needs to be called recurrently to get all, but 1 call gets 100 which is fine mostly.
           reader.readEntries((results: any[]) => resolve(results));
         });
         queue.push(...entries);
@@ -94,7 +92,6 @@ export function DragDropZone({ onParsed, onError }: DragDropZoneProps) {
     [onParsed, onError],
   );
 
-  // Helper for reading absolute paths obtained from Tauri Dialog
   const readBlocFilesFromPaths = async (
     paths: string[],
   ): Promise<Uint8Array[]> => {
@@ -156,8 +153,6 @@ export function DragDropZone({ onParsed, onError }: DragDropZoneProps) {
     });
     if (selected) {
       const paths = Array.isArray(selected) ? selected : [selected];
-      // Note: the "open" dialog with plugin-dialog returns either string or null. Oh wait, v2 might return an array of objects or strings
-      // to be safe let's extract standard path property if it's an object else assume it's string.
       const stringPaths = paths.map((p: any) =>
         typeof p === "string" ? p : p.path,
       );
