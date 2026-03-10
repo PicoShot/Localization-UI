@@ -6,10 +6,30 @@ fn greet(name: &str) -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
-        .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![greet])
+    let mut builder = tauri::Builder::default();
+
+    #[cfg(desktop)]
+    {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, _, _| {
+            use tauri::Manager;
+
+            let _ = app
+                .get_webview_window("main")
+                .expect("no main window")
+                .set_focus();
+        }));
+    }
+
+    builder = builder.plugin(tauri_plugin_websocket::init());
+    builder = builder.plugin(tauri_plugin_clipboard_manager::init());
+    builder = builder.plugin(tauri_plugin_http::init());
+    builder = builder.plugin(tauri_plugin_stronghold::Builder::new(|_pass| todo!()).build());
+    builder = builder.plugin(tauri_plugin_fs::init());
+    builder = builder.plugin(tauri_plugin_persisted_scope::init());
+    builder = builder.plugin(tauri_plugin_dialog::init());
+    builder = builder.invoke_handler(tauri::generate_handler![greet]);
+
+    builder
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .expect("error while running application");
 }
