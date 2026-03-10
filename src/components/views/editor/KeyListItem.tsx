@@ -1,6 +1,13 @@
 import { memo } from "react";
 import { Box, Flex, Text, ContextMenu } from "@radix-ui/themes";
-import { Edit2, Trash2, Languages, Copy, Code2, Eraser } from "lucide-react";
+import {
+  Edit2,
+  Trash2,
+  Languages,
+  Copy,
+  ClipboardPaste,
+  Eraser,
+} from "lucide-react";
 import { UnifiedKey } from "./types";
 
 interface KeyListItemProps {
@@ -78,8 +85,8 @@ export const KeyListItem = memo(function KeyListItem({
             </Flex>
           </ContextMenu.SubTrigger>
           <ContextMenu.SubContent>
-            <ContextMenu.Item>All Languages</ContextMenu.Item>
-            <ContextMenu.Item>Missing Only</ContextMenu.Item>
+            <ContextMenu.Item>DeepL</ContextMenu.Item>
+            <ContextMenu.Item>Gemini</ContextMenu.Item>
           </ContextMenu.SubContent>
         </ContextMenu.Sub>
 
@@ -92,16 +99,22 @@ export const KeyListItem = memo(function KeyListItem({
           </ContextMenu.SubTrigger>
           <ContextMenu.SubContent>
             <ContextMenu.Item>Name</ContextMenu.Item>
-            <ContextMenu.Item>As Json</ContextMenu.Item>
+            <ContextMenu.Item>Json Data</ContextMenu.Item>
           </ContextMenu.SubContent>
         </ContextMenu.Sub>
 
-        <ContextMenu.Item>
-          <Flex gap="2" align="center">
-            <Code2 size={14} />
-            Copy as JSON
-          </Flex>
-        </ContextMenu.Item>
+        <ContextMenu.Sub>
+          <ContextMenu.SubTrigger>
+            <Flex gap="2" align="center">
+              <ClipboardPaste size={14} />
+              Paste
+            </Flex>
+          </ContextMenu.SubTrigger>
+          <ContextMenu.SubContent>
+            <ContextMenu.Item>Name</ContextMenu.Item>
+            <ContextMenu.Item>Json Data</ContextMenu.Item>
+          </ContextMenu.SubContent>
+        </ContextMenu.Sub>
 
         <ContextMenu.Separator />
 
