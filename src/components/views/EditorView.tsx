@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Flex, Card } from "@radix-ui/themes";
-import { useEditorStore } from "../../stores/editorStore";
-import { UnifiedKey } from "../../lib/types";
+import { useEditorStore } from "@/stores/editorStore";
+import { UnifiedKey } from "@/types/types";
 import { KeyListSidebar } from "./editor/KeyListSidebar";
 import { KeyDetailsPanel } from "./editor/KeyDetailsPanel";
 

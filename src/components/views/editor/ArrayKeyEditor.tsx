@@ -8,11 +8,11 @@ import {
   Button,
 } from "@radix-ui/themes";
 import { X, Plus, Eraser } from "lucide-react";
-import { LocaleData } from "../../../lib/bloc";
-import { UnifiedKey } from "./types";
+import { LocaleData } from "@/lib/bloc";
+import { UnifiedKey } from "@/types/types";
 import { useState } from "react";
 import { RichTextEditorModal } from "./RichTextEditorModal";
-import { GetLanguageName } from "../../../utils/languages";
+import { GetLanguageName } from "@/utils/languages";
 
 interface ArrayKeyEditorProps {
   locales: LocaleData[];

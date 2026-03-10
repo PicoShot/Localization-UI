@@ -7,7 +7,7 @@ import {
   RadioGroup,
 } from "@radix-ui/themes";
 import { useState, useEffect } from "react";
-import { UnifiedKey } from "./types";
+import { UnifiedKey } from "@/types/types";
 
 interface AddKeyModalProps {
   open: boolean;

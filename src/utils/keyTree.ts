@@ -1,4 +1,4 @@
-import type { UnifiedKey } from "./types";
+import type { UnifiedKey } from "@/types/types";
 
 export interface KeyTreeGroup {
   kind: "group";

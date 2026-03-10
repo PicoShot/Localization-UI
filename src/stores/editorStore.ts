@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { LocaleBlocSerializer, LocaleData } from "../lib/bloc";
-import { UnifiedKey } from "../lib/types";
+import { LocaleBlocSerializer, LocaleData } from "@/lib/bloc";
+import { UnifiedKey } from "@/types/types";
 import { writeFile } from "@tauri-apps/plugin-fs";
 
 interface EditorState {

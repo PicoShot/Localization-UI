@@ -1,6 +1,6 @@
 import { Flex, Heading, Text, Card } from "@radix-ui/themes";
-import { DragDropZone } from "../components/DragDropZone";
-import { useEditorStore } from "../stores/editorStore";
+import { DragDropZone } from "@/components/DragDropZone";
+import { useEditorStore } from "@/stores/editorStore";
 
 export function MainPage() {
   const loadError = useEditorStore((s) => s.loadError);

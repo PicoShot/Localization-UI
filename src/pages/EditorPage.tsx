@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Flex } from "@radix-ui/themes";
-import { LeftBar } from "../components/LeftBar";
-import { EditorView } from "../components/views/EditorView";
-import { SettingsView } from "../components/views/SettingsView";
+import { LeftBar } from "@/components/LeftBar";
+import { EditorView } from "@/components/views/EditorView";
+import { SettingsView } from "@/components/views/SettingsView";
 
 export function EditorPage() {
   const [activeTab, setActiveTab] = useState<"editor" | "settings">("editor");

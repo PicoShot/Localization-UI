@@ -8,7 +8,7 @@ import {
   ClipboardPaste,
   Eraser,
 } from "lucide-react";
-import { UnifiedKey } from "./types";
+import { UnifiedKey } from "@/types/types";
 
 interface KeyListItemProps {
   item: UnifiedKey;

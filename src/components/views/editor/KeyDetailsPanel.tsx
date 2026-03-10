@@ -1,9 +1,9 @@
 import { Flex, Box, Text, Heading, ScrollArea } from "@radix-ui/themes";
-import { LocaleData } from "../../../lib/bloc";
-import { UnifiedKey } from "./types";
+import { LocaleData } from "@/lib/bloc";
+import { UnifiedKey } from "@/types/types";
 import { StringKeyEditor } from "./StringKeyEditor";
 import { ArrayKeyEditor } from "./ArrayKeyEditor";
-import { useEditorStore } from "../../../stores/editorStore";
+import { useEditorStore } from "@/stores/editorStore";
 
 interface KeyDetailsPanelProps {
   locales: LocaleData[];

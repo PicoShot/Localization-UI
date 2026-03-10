@@ -1,9 +1,9 @@
 import { Flex, Box, Text, TextField } from "@radix-ui/themes";
-import { LocaleData } from "../../../lib/bloc";
-import { UnifiedKey } from "./types";
+import { LocaleData } from "@/lib/bloc";
+import { UnifiedKey } from "@/types/types";
 import { useState } from "react";
 import { RichTextEditorModal } from "./RichTextEditorModal";
-import { GetLanguageName } from "../../../utils/languages";
+import { GetLanguageName } from "@/utils/languages";
 
 interface StringKeyEditorProps {
   locales: LocaleData[];

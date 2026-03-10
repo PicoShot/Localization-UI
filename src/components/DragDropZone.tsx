@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { Card, Flex, Text, Button } from "@radix-ui/themes";
-import { LocaleBlocSerializer, LocaleData } from "../lib/bloc";
-import { useEditorStore } from "../stores/editorStore";
+import { LocaleBlocSerializer, LocaleData } from "@/lib/bloc";
+import { useEditorStore } from "@/stores/editorStore";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readFile, readDir } from "@tauri-apps/plugin-fs";
 import { join } from "@tauri-apps/api/path";

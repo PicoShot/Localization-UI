@@ -7,7 +7,7 @@ import {
   DoubleArrowRightIcon,
   ExitIcon,
 } from "@radix-ui/react-icons";
-import { useEditorStore } from "../stores/editorStore";
+import { useEditorStore } from "@/stores/editorStore";
 
 interface LeftBarProps {
   activeTab: "editor" | "settings";

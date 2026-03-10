@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { Box, Flex, Text } from "@radix-ui/themes";
 import { ChevronRight, ChevronDown } from "lucide-react";
-import type { KeyTreeGroup } from "./keyTree";
+import type { KeyTreeGroup } from "@/utils/keyTree";
 
 interface KeyTreeGroupRowProps {
   node: KeyTreeGroup;

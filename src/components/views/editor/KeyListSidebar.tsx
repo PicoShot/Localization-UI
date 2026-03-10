@@ -9,16 +9,16 @@ import {
   ScrollArea,
 } from "@radix-ui/themes";
 import { Plus, Search, X, ChevronsDownUp, ChevronsUpDown } from "lucide-react";
-import { UnifiedKey } from "./types";
+import { UnifiedKey } from "@/types/types";
 import { KeyListItem } from "./KeyListItem";
 import { KeyTreeGroupRow } from "./KeyTreeGroupRow";
 import { AddKeyModal } from "./AddKeyModal";
-import { useEditorStore } from "../../../stores/editorStore";
+import { useEditorStore } from "@/stores/editorStore";
 import {
   buildKeyTree,
   flattenTree,
   collectAllGroupPaths,
-} from "./keyTree";
+} from "@/utils/keyTree";
 
 interface KeyListSidebarProps {
   width: number;
@@ -201,30 +201,30 @@ export const KeyListSidebar = memo(function KeyListSidebar({
               Group
             </Flex>
           </Text>
-          {groupByPrefix && (
-            <>
-              <IconButton
-                variant="ghost"
-                size="1"
-                title="Expand All"
-                onClick={expandAll}
-              >
-                <ChevronsUpDown size={14} />
-              </IconButton>
-              <IconButton
-                variant="ghost"
-                size="1"
-                title="Collapse All"
-                onClick={collapseAll}
-              >
-                <ChevronsDownUp size={14} />
-              </IconButton>
-            </>
-          )}
         </Flex>
         <Text size="1" color="gray">
           Found: {filteredKeys.length} / {keys.length} keys
         </Text>
+        {groupByPrefix && (
+          <>
+            <IconButton
+              variant="ghost"
+              size="1"
+              title="Expand All"
+              onClick={expandAll}
+            >
+              <ChevronsUpDown size={14} />
+            </IconButton>
+            <IconButton
+              variant="ghost"
+              size="1"
+              title="Collapse All"
+              onClick={collapseAll}
+            >
+              <ChevronsDownUp size={14} />
+            </IconButton>
+          </>
+        )}
       </Flex>
 
       <ScrollArea type="auto" style={{ flex: 1 }}>

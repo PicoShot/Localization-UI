@@ -9,7 +9,7 @@ import {
 import { Save } from "lucide-react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useTheme } from "./ThemeProvider";
-import { useEditorStore } from "../stores/editorStore";
+import { useEditorStore } from "@/stores/editorStore";
 
 export function TitleBar() {
   const { theme, toggleTheme } = useTheme();
