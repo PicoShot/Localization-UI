@@ -11,6 +11,7 @@ import {
 import { Plus, Search, X } from "lucide-react";
 import { UnifiedKey } from "./types";
 import { KeyListItem } from "./KeyListItem";
+import { AddKeyModal } from "./AddKeyModal";
 
 interface KeyListSidebarProps {
   width: number;
@@ -31,6 +32,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const [showStrings, setShowStrings] = useState(true);
   const [showArrays, setShowArrays] = useState(true);
   const [sortByName, setSortByName] = useState(true);
+  const [showAddKey, setShowAddKey] = useState(false);
 
   const filteredKeys = useMemo(() => {
     let result = keys.filter((k) => {
@@ -57,6 +59,14 @@ export const KeyListSidebar = memo(function KeyListSidebar({
     [setSelectedKeyName],
   );
 
+  const handleAddKey = useCallback(
+    (newKey: UnifiedKey) => {
+      setKeys((prev) => [...prev, newKey]);
+      setSelectedKeyName(newKey.name);
+    },
+    [setKeys, setSelectedKeyName],
+  );
+
   return (
     <Flex
       direction="column"
@@ -67,20 +77,18 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         flexShrink: 0,
       }}
     >
-      {/* Add Actions */}
       <Flex p="3" gap="2" style={{ borderBottom: "1px solid var(--gray-a4)" }}>
         <Button
           variant="soft"
           size="2"
           color="indigo"
           style={{ flex: 1 }}
-          onClick={() => {}}
+          onClick={() => setShowAddKey(true)}
         >
           <Plus size={18} /> Add Key
         </Button>
       </Flex>
 
-      {/* Search & Filters */}
       <Flex
         direction="column"
         p="3"
@@ -156,6 +164,13 @@ export const KeyListSidebar = memo(function KeyListSidebar({
           ))}
         </Flex>
       </ScrollArea>
+
+      <AddKeyModal
+        open={showAddKey}
+        onOpenChange={setShowAddKey}
+        existingKeys={keys}
+        onAdd={handleAddKey}
+      />
     </Flex>
   );
 });
