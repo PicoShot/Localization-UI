@@ -9,6 +9,7 @@ import {
   Eraser,
 } from "lucide-react";
 import { UnifiedKey } from "@/types/types";
+import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 
 interface KeyListItemProps {
   item: UnifiedKey;
@@ -36,11 +37,11 @@ export const KeyListItem = memo(function KeyListItem({
   depth = 0,
 }: KeyListItemProps) {
   const handleCopyName = () => {
-    navigator.clipboard.writeText(item.name);
+    writeText(item.name);
   };
 
   const handleCopyJsonData = () => {
-    navigator.clipboard.writeText(JSON.stringify(item.values, null, 2));
+    writeText(JSON.stringify(item.values, null, 2));
   };
 
   return (

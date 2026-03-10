@@ -17,6 +17,7 @@ import { DeleteKeyModal } from "./DeleteKeyModal";
 import { RenameKeyModal } from "./RenameKeyModal";
 import { ClearValuesModal } from "./ClearValuesModal";
 import { useEditorStore } from "@/stores/editorStore";
+import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import {
   buildKeyTree,
   flattenTree,
@@ -159,7 +160,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
 
   const handlePasteName = useCallback(
     async (keyName: string) => {
-      const text = (await navigator.clipboard.readText()).trim();
+      const text = (await readText()).trim();
       if (!text || /\s/.test(text)) return;
       if (text === keyName) return;
       if (keys.some((k) => k.name === text)) return;
@@ -170,7 +171,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
 
   const handlePasteJsonData = useCallback(
     async (keyName: string) => {
-      const text = await navigator.clipboard.readText();
+      const text = await readText();
       try {
         const parsed = JSON.parse(text);
         if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return;
