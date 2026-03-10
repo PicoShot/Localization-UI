@@ -14,7 +14,7 @@ import { useState } from "react";
 import { RichTextEditorModal } from "./RichTextEditorModal";
 
 interface ArrayKeyEditorProps {
-  data: LocaleData[];
+  locales: LocaleData[];
   selectedKey: UnifiedKey;
   onElementChange: (langCode: string, index: number, newValue: string) => void;
   onRemoveElement: (index: number) => void;
@@ -23,7 +23,7 @@ interface ArrayKeyEditorProps {
 }
 
 export function ArrayKeyEditor({
-  data,
+  locales,
   selectedKey,
   onElementChange,
   onRemoveElement,
@@ -36,7 +36,7 @@ export function ArrayKeyEditor({
   } | null>(null);
 
   let maxLength = 0;
-  data.forEach((loc) => {
+  locales.forEach((loc) => {
     const val = selectedKey.values[loc.languageCode];
     if (Array.isArray(val) && val.length > maxLength) {
       maxLength = val.length;
@@ -68,7 +68,7 @@ export function ArrayKeyEditor({
               </IconButton>
             </Flex>
 
-            {data.map((locale) => {
+            {locales.map((locale) => {
               const valArr = selectedKey.values[locale.languageCode] as
                 | string[]
                 | undefined;

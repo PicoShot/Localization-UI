@@ -1,14 +1,10 @@
 import { Flex, Heading, Text, Card } from "@radix-ui/themes";
 import { DragDropZone } from "../components/DragDropZone";
-import { LocaleData } from "../lib/bloc";
+import { useEditorStore } from "../stores/editorStore";
 
-interface MainPageProps {
-  onParsed: (data: LocaleData[]) => void;
-  onError: (error: string) => void;
-  error: string | null;
-}
+export function MainPage() {
+  const loadError = useEditorStore((s) => s.loadError);
 
-export function MainPage({ onParsed, onError, error }: MainPageProps) {
   return (
     <Flex
       direction="column"
@@ -32,10 +28,10 @@ export function MainPage({ onParsed, onError, error }: MainPageProps) {
       </Flex>
 
       <div style={{ width: "100%", minHeight: "250px" }}>
-        <DragDropZone onParsed={onParsed} onError={onError} />
+        <DragDropZone />
       </div>
 
-      {error && (
+      {loadError && (
         <Card
           style={{
             backgroundColor: "var(--red-a3)",
@@ -45,7 +41,7 @@ export function MainPage({ onParsed, onError, error }: MainPageProps) {
           }}
         >
           <Text color="red" weight="bold" align="center" as="p">
-            Error: {error}
+            Error: {loadError}
           </Text>
         </Card>
       )}

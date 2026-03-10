@@ -5,13 +5,13 @@ import { useState } from "react";
 import { RichTextEditorModal } from "./RichTextEditorModal";
 
 interface StringKeyEditorProps {
-  data: LocaleData[];
+  locales: LocaleData[];
   selectedKey: UnifiedKey;
   onChange: (langCode: string, newValue: string) => void;
 }
 
 export function StringKeyEditor({
-  data,
+  locales,
   selectedKey,
   onChange,
 }: StringKeyEditorProps) {
@@ -19,7 +19,7 @@ export function StringKeyEditor({
 
   return (
     <Flex direction="column" gap="4">
-      {data.map((locale) => (
+      {locales.map((locale) => (
         <Box key={locale.languageCode}>
           <Text
             as="label"

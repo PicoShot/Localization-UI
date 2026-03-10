@@ -1,16 +1,19 @@
 import { useState, useCallback } from "react";
 import { Card, Flex, Text, Button } from "@radix-ui/themes";
 import { LocaleBlocSerializer, LocaleData } from "../lib/bloc";
+import { useEditorStore } from "../stores/editorStore";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readFile, readDir } from "@tauri-apps/plugin-fs";
 import { join } from "@tauri-apps/api/path";
 
-interface DragDropZoneProps {
-  onParsed: (data: LocaleData[]) => void;
-  onError: (error: string) => void;
+interface BlocFile {
+  buffer: Uint8Array;
+  path: string;
 }
 
-export function DragDropZone({ onParsed, onError }: DragDropZoneProps) {
+export function DragDropZone() {
+  const loadFiles = useEditorStore((s) => s.loadFiles);
+  const setLoadError = useEditorStore((s) => s.setLoadError);
   const [isDragActive, setIsDragActive] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -41,9 +44,9 @@ export function DragDropZone({ onParsed, onError }: DragDropZoneProps) {
     }
 
     if (parsedFiles.length === 0) {
-      onError("No valid BLOC files found.");
+      setLoadError("No valid BLOC files found.");
     } else {
-      onParsed(parsedFiles);
+      loadFiles(parsedFiles, new Map());
     }
     setIsProcessing(false);
   };
@@ -85,22 +88,22 @@ export function DragDropZone({ onParsed, onError }: DragDropZoneProps) {
         const files = await getFilesFromDataTransferItems(e.dataTransfer.items);
         await processWebFiles(files);
       } catch (err: any) {
-        onError("Drag logic error: " + err.message);
+        setLoadError("Drag logic error: " + err.message);
         setIsProcessing(false);
       }
     },
-    [onParsed, onError],
+    [loadFiles, setLoadError],
   );
 
   const readBlocFilesFromPaths = async (
     paths: string[],
-  ): Promise<Uint8Array[]> => {
-    const buffers: Uint8Array[] = [];
+  ): Promise<BlocFile[]> => {
+    const results: BlocFile[] = [];
     for (const p of paths) {
       if (p.endsWith(".bloc")) {
         try {
           const buf = await readFile(p);
-          buffers.push(buf);
+          results.push({ buffer: buf, path: p });
         } catch {}
       } else {
         try {
@@ -112,35 +115,37 @@ export function DragDropZone({ onParsed, onError }: DragDropZoneProps) {
             }
           }
           if (subPaths.length > 0) {
-            const subBuffers = await readBlocFilesFromPaths(subPaths);
-            buffers.push(...subBuffers);
+            const subResults = await readBlocFilesFromPaths(subPaths);
+            results.push(...subResults);
           }
         } catch {}
       }
     }
-    return buffers;
+    return results;
   };
 
   const processTauriPaths = async (paths: string[]) => {
     setIsProcessing(true);
     try {
-      const buffers = await readBlocFilesFromPaths(paths);
+      const blocFiles = await readBlocFilesFromPaths(paths);
       const parsedFiles: LocaleData[] = [];
+      const filePaths = new Map<string, string>();
 
-      for (const buffer of buffers) {
+      for (const { buffer, path } of blocFiles) {
         const validation = LocaleBlocSerializer.validateBuffer(buffer);
-        if (validation.isValid) {
+        if (validation.isValid && validation.languageCode) {
           parsedFiles.push(LocaleBlocSerializer.deserialize(buffer));
+          filePaths.set(validation.languageCode, path);
         }
       }
 
       if (parsedFiles.length === 0) {
-        onError("No valid BLOC files found at the selected path(s).");
+        setLoadError("No valid BLOC files found at the selected path(s).");
       } else {
-        onParsed(parsedFiles);
+        loadFiles(parsedFiles, filePaths);
       }
     } catch (err: any) {
-      onError("Failed to read selected files.");
+      setLoadError("Failed to read selected files.");
     } finally {
       setIsProcessing(false);
     }

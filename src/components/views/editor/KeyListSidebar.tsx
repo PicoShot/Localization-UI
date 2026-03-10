@@ -12,11 +12,11 @@ import { Plus, Search, X } from "lucide-react";
 import { UnifiedKey } from "./types";
 import { KeyListItem } from "./KeyListItem";
 import { AddKeyModal } from "./AddKeyModal";
+import { useEditorStore } from "../../../stores/editorStore";
 
 interface KeyListSidebarProps {
   width: number;
   keys: UnifiedKey[];
-  setKeys: React.Dispatch<React.SetStateAction<UnifiedKey[]>>;
   selectedKeyName: string | null;
   setSelectedKeyName: (name: string | null) => void;
 }
@@ -24,10 +24,10 @@ interface KeyListSidebarProps {
 export const KeyListSidebar = memo(function KeyListSidebar({
   width,
   keys,
-  setKeys,
   selectedKeyName,
   setSelectedKeyName,
 }: KeyListSidebarProps) {
+  const addKey = useEditorStore((s) => s.addKey);
   const [searchQuery, setSearchQuery] = useState("");
   const [showStrings, setShowStrings] = useState(true);
   const [showArrays, setShowArrays] = useState(true);
@@ -61,10 +61,9 @@ export const KeyListSidebar = memo(function KeyListSidebar({
 
   const handleAddKey = useCallback(
     (newKey: UnifiedKey) => {
-      setKeys((prev) => [...prev, newKey]);
-      setSelectedKeyName(newKey.name);
+      addKey(newKey);
     },
-    [setKeys, setSelectedKeyName],
+    [addKey],
   );
 
   return (
@@ -151,7 +150,6 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         </Text>
       </Flex>
 
-      {/* Keys List */}
       <ScrollArea type="auto" style={{ flex: 1 }}>
         <Flex direction="column" p="1">
           {filteredKeys.map((k) => (

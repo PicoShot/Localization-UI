@@ -14,14 +14,15 @@ import {
   DoubleArrowRightIcon,
   ExitIcon,
 } from "@radix-ui/react-icons";
+import { useEditorStore } from "../stores/editorStore";
 
 interface LeftBarProps {
   activeTab: "editor" | "settings";
   setActiveTab: (tab: "editor" | "settings") => void;
-  onBack: () => void;
 }
 
-export function LeftBar({ activeTab, setActiveTab, onBack }: LeftBarProps) {
+export function LeftBar({ activeTab, setActiveTab }: LeftBarProps) {
+  const closeFiles = useEditorStore((s) => s.closeFiles);
   const [isCompact, setIsCompact] = useState(true);
 
   const renderWithTooltip = (content: string, children: React.ReactElement) => {
@@ -114,7 +115,7 @@ export function LeftBar({ activeTab, setActiveTab, onBack }: LeftBarProps) {
             variant="outline"
             color="red"
             size="3"
-            onClick={onBack}
+            onClick={closeFiles}
             style={{
               justifyContent: isCompact ? "center" : "flex-start",
               cursor: "pointer",

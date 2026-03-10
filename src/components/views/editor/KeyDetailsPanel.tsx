@@ -12,32 +12,24 @@ import { LocaleData } from "../../../lib/bloc";
 import { UnifiedKey } from "./types";
 import { StringKeyEditor } from "./StringKeyEditor";
 import { ArrayKeyEditor } from "./ArrayKeyEditor";
+import { useEditorStore } from "../../../stores/editorStore";
 
 interface KeyDetailsPanelProps {
-  data: LocaleData[];
+  locales: LocaleData[];
   selectedKey: UnifiedKey | null;
-  onDeleteKey: () => void;
-  onStringValueChange: (langCode: string, newValue: string) => void;
-  onArrayElementChange: (
-    langCode: string,
-    index: number,
-    newValue: string,
-  ) => void;
-  onRemoveArrayElement: (index: number) => void;
-  onAddArrayElement: () => void;
-  onClearEmptyArrayElements: () => void;
 }
 
 export function KeyDetailsPanel({
-  data,
+  locales,
   selectedKey,
-  onDeleteKey,
-  onStringValueChange,
-  onArrayElementChange,
-  onRemoveArrayElement,
-  onAddArrayElement,
-  onClearEmptyArrayElements,
 }: KeyDetailsPanelProps) {
+  const deleteSelectedKey = useEditorStore((s) => s.deleteSelectedKey);
+  const setStringValue = useEditorStore((s) => s.setStringValue);
+  const setArrayElement = useEditorStore((s) => s.setArrayElement);
+  const removeArrayElement = useEditorStore((s) => s.removeArrayElement);
+  const addArrayElement = useEditorStore((s) => s.addArrayElement);
+  const clearEmptyArrayElements = useEditorStore((s) => s.clearEmptyArrayElements);
+
   if (!selectedKey) {
     return (
       <Flex
@@ -49,6 +41,8 @@ export function KeyDetailsPanel({
       </Flex>
     );
   }
+
+  const keyName = selectedKey.name;
 
   return (
     <ScrollArea type="auto" style={{ flex: 1 }}>
@@ -62,7 +56,6 @@ export function KeyDetailsPanel({
           </Heading>
         </Box>
 
-        {/* Translation Hint */}
         <Box>
           <Text
             as="label"
@@ -77,7 +70,6 @@ export function KeyDetailsPanel({
           <TextArea placeholder="Context for translators/DeepL..." size="2" />
         </Box>
 
-        {/* Actions Row */}
         <Flex
           gap="2"
           wrap="wrap"
@@ -102,29 +94,27 @@ export function KeyDetailsPanel({
           <Button variant="soft" size="1" color="gray">
             <Eraser size={14} /> Clear
           </Button>
-          <Button variant="soft" size="1" color="red" onClick={onDeleteKey}>
+          <Button variant="soft" size="1" color="red" onClick={deleteSelectedKey}>
             <Trash2 size={14} /> Delete
           </Button>
         </Flex>
 
-        {/* String Key Language Values */}
         {selectedKey.type === "string" && (
           <StringKeyEditor
-            data={data}
+            locales={locales}
             selectedKey={selectedKey}
-            onChange={onStringValueChange}
+            onChange={(langCode, newValue) => setStringValue(keyName, langCode, newValue)}
           />
         )}
 
-        {/* Array Key Elements */}
         {selectedKey.type === "array" && (
           <ArrayKeyEditor
-            data={data}
+            locales={locales}
             selectedKey={selectedKey}
-            onElementChange={onArrayElementChange}
-            onRemoveElement={onRemoveArrayElement}
-            onAddElement={onAddArrayElement}
-            onClearEmpty={onClearEmptyArrayElements}
+            onElementChange={(langCode, index, newValue) => setArrayElement(keyName, langCode, index, newValue)}
+            onRemoveElement={(index) => removeArrayElement(keyName, index)}
+            onAddElement={() => addArrayElement(keyName)}
+            onClearEmpty={() => clearEmptyArrayElements(keyName)}
           />
         )}
       </Flex>
