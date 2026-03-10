@@ -104,7 +104,9 @@ export function DragDropZone() {
         try {
           const buf = await readFile(p);
           results.push({ buffer: buf, path: p });
-        } catch {}
+        } catch (err) {
+          console.error(err);
+        }
       } else {
         try {
           const entries = await readDir(p);
@@ -118,7 +120,9 @@ export function DragDropZone() {
             const subResults = await readBlocFilesFromPaths(subPaths);
             results.push(...subResults);
           }
-        } catch {}
+        } catch (err) {
+          console.error(err);
+        }
       }
     }
     return results;

@@ -3,6 +3,7 @@ import { LocaleData } from "../../../lib/bloc";
 import { UnifiedKey } from "./types";
 import { useState } from "react";
 import { RichTextEditorModal } from "./RichTextEditorModal";
+import { GetLanguageName } from "../../../utils/languages";
 
 interface StringKeyEditorProps {
   locales: LocaleData[];
@@ -29,13 +30,13 @@ export function StringKeyEditor({
             mb="1"
             style={{ display: "block" }}
           >
-            {locale.languageCode.toUpperCase()}
+            {GetLanguageName(locale.languageCode)}
           </Text>
           <TextField.Root
             value={(selectedKey.values[locale.languageCode] as string) || ""}
             onChange={(e) => onChange(locale.languageCode, e.target.value)}
             onDoubleClick={() => setEditingLang(locale.languageCode)}
-            placeholder={`Value in ${locale.languageCode}...`}
+            placeholder={`Value in ${GetLanguageName(locale.languageCode)}...`}
             style={{
               fontFamily: "inherit",
               cursor: "text",
@@ -57,7 +58,7 @@ export function StringKeyEditor({
             onChange(editingLang, val);
           }
         }}
-        title={`Edit Value - ${editingLang?.toUpperCase()}`}
+        title={`Edit Value - ${GetLanguageName(editingLang || "")}`}
       />
     </Flex>
   );

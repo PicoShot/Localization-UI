@@ -12,6 +12,7 @@ import { LocaleData } from "../../../lib/bloc";
 import { UnifiedKey } from "./types";
 import { useState } from "react";
 import { RichTextEditorModal } from "./RichTextEditorModal";
+import { GetLanguageName } from "../../../utils/languages";
 
 interface ArrayKeyEditorProps {
   locales: LocaleData[];
@@ -81,7 +82,7 @@ export function ArrayKeyEditor({
                     color="gray"
                     style={{ display: "block", marginBottom: "4px" }}
                   >
-                    {locale.languageCode.toUpperCase()}:
+                    {GetLanguageName(locale.languageCode)}:
                   </Text>
                   <TextField.Root
                     value={val || ""}
@@ -94,7 +95,7 @@ export function ArrayKeyEditor({
                         index: i,
                       })
                     }
-                    placeholder={`Element ${i} in ${locale.languageCode}`}
+                    placeholder={`Element ${i} in ${GetLanguageName(locale.languageCode)}`}
                     style={{ cursor: "text" }}
                   />
                 </Box>
