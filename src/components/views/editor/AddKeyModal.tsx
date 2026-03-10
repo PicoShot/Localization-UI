@@ -67,6 +67,9 @@ export function AddKeyModal({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Content maxWidth="420px">
         <Dialog.Title>Add New Key</Dialog.Title>
+        <Dialog.Description size="2">
+          Enter a unique name and select the type for the new localization key.
+        </Dialog.Description>
 
         <Flex direction="column" gap="4" mt="2">
           <Flex direction="column" gap="1">

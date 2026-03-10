@@ -41,6 +41,9 @@ export function RichTextEditorModal({
         }}
       >
         <Dialog.Title>{title}</Dialog.Title>
+        <Dialog.Description size="2">
+          Edit the content for this translation key.
+        </Dialog.Description>
         <Flex direction="column" gap="3" style={{ flexGrow: 1 }}>
           <TextArea
             size="3"
