@@ -14,6 +14,7 @@ interface KeyListItemProps {
   item: UnifiedKey;
   isSelected: boolean;
   onSelect: (name: string) => void;
+  onDelete: (name: string) => void;
   displayName?: string;
   depth?: number;
 }
@@ -22,6 +23,7 @@ export const KeyListItem = memo(function KeyListItem({
   item,
   isSelected,
   onSelect,
+  onDelete,
   displayName,
   depth = 0,
 }: KeyListItemProps) {
@@ -130,7 +132,7 @@ export const KeyListItem = memo(function KeyListItem({
           </Flex>
         </ContextMenu.Item>
 
-        <ContextMenu.Item color="red" shortcut="⌘ + X">
+        <ContextMenu.Item color="red" shortcut="⌘ + X" onClick={() => onDelete(item.name)}>
           <Flex gap="2" align="center">
             <Trash2 size={14} />
             Delete Key

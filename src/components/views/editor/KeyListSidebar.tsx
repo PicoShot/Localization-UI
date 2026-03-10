@@ -13,6 +13,7 @@ import { UnifiedKey } from "@/types/types";
 import { KeyListItem } from "./KeyListItem";
 import { KeyTreeGroupRow } from "./KeyTreeGroupRow";
 import { AddKeyModal } from "./AddKeyModal";
+import { DeleteKeyModal } from "./DeleteKeyModal";
 import { useEditorStore } from "@/stores/editorStore";
 import {
   buildKeyTree,
@@ -34,11 +35,13 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   setSelectedKeyName,
 }: KeyListSidebarProps) {
   const addKey = useEditorStore((s) => s.addKey);
+  const deleteSelectedKey = useEditorStore((s) => s.deleteSelectedKey);
   const [searchQuery, setSearchQuery] = useState("");
   const [showStrings, setShowStrings] = useState(true);
   const [showArrays, setShowArrays] = useState(true);
   const [sortByName, setSortByName] = useState(true);
   const [showAddKey, setShowAddKey] = useState(false);
+  const [pendingDeleteKey, setPendingDeleteKey] = useState<string | null>(null);
   const [groupByPrefix, setGroupByPrefix] = useState(false);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
     () => new Set(),
@@ -113,6 +116,17 @@ export const KeyListSidebar = memo(function KeyListSidebar({
     },
     [addKey],
   );
+
+  const handleDeleteRequest = useCallback((name: string) => {
+    setPendingDeleteKey(name);
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    if (!pendingDeleteKey) return;
+    setSelectedKeyName(pendingDeleteKey);
+    deleteSelectedKey();
+    setPendingDeleteKey(null);
+  }, [pendingDeleteKey, setSelectedKeyName, deleteSelectedKey]);
 
   return (
     <Flex
@@ -247,6 +261,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
                     item={item.node.key}
                     isSelected={item.node.key.name === selectedKeyName}
                     onSelect={handleSelect}
+                    onDelete={handleDeleteRequest}
                     displayName={item.node.label}
                     depth={item.depth}
                   />
@@ -258,6 +273,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
                   item={k}
                   isSelected={k.name === selectedKeyName}
                   onSelect={handleSelect}
+                  onDelete={handleDeleteRequest}
                 />
               ))}
         </Flex>
@@ -268,6 +284,13 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         onOpenChange={setShowAddKey}
         existingKeys={keys}
         onAdd={handleAddKey}
+      />
+
+      <DeleteKeyModal
+        open={pendingDeleteKey !== null}
+        onOpenChange={(open) => { if (!open) setPendingDeleteKey(null); }}
+        keyName={pendingDeleteKey ?? ""}
+        onConfirm={handleConfirmDelete}
       />
     </Flex>
   );
