@@ -27,6 +27,7 @@ export function TitleBar() {
     <Flex
       align="center"
       justify="between"
+      onDoubleClick={() => appWindow.toggleMaximize()}
       style={{
         height: "36px",
         background: "var(--color-panel)",

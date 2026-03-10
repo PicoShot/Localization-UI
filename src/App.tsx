@@ -1,11 +1,18 @@
+import { useEffect } from "react";
 import { Flex } from "@radix-ui/themes";
 import { useEditorStore } from "@/stores/editorStore";
 import { MainPage } from "@/pages/MainPage";
 import { EditorPage } from "@/pages/EditorPage";
 import { TitleBar } from "@/components/TitleBar";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 function App() {
   const isLoaded = useEditorStore((s) => s.keys.length > 0);
+
+  useEffect(() => {
+    useEditorStore.getState().restoreSession();
+    getCurrentWindow().show();
+  }, []);
 
   document.addEventListener("contextmenu", (e) => {
     e.preventDefault();

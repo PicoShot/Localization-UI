@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { LocaleBlocSerializer, LocaleData } from "@/lib/bloc";
 import { UnifiedKey } from "@/types/types";
 import { writeFile } from "@tauri-apps/plugin-fs";
+import { saveSession, loadSession, clearSession } from "@/lib/session";
+import { loadBlocFilesFromPaths } from "@/lib/loadBlocFiles";
 
 interface EditorState {
   locales: LocaleData[];
@@ -28,6 +30,7 @@ interface EditorState {
   addArrayElement: (keyName: string) => void;
   clearEmptyArrayElements: (keyName: string) => void;
   saveFiles: () => Promise<void>;
+  restoreSession: () => Promise<void>;
 }
 
 function buildKeysFromLocales(data: LocaleData[]): UnifiedKey[] {
@@ -98,6 +101,7 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
       hasUnsavedChanges: false,
       loadError: null,
     });
+    saveSession(filePaths, null);
   },
 
   closeFiles: () => {
@@ -109,11 +113,15 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
       hasUnsavedChanges: false,
       loadError: null,
     });
+    clearSession();
   },
 
   setLoadError: (error) => set({ loadError: error }),
 
-  setSelectedKeyName: (name) => set({ selectedKeyName: name }),
+  setSelectedKeyName: (name) => {
+    set({ selectedKeyName: name });
+    saveSession(get().filePaths, name);
+  },
 
   addKey: (key) => {
     set((state) => ({
@@ -241,5 +249,37 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
     }
 
     set({ hasUnsavedChanges: false, locales: updatedLocales });
+  },
+
+  restoreSession: async () => {
+    const record = loadSession();
+    if (!record) return;
+
+    try {
+      const paths = Object.values(record.filePaths);
+      if (paths.length === 0) {
+        clearSession();
+        return;
+      }
+
+      const { locales, filePaths } = await loadBlocFilesFromPaths(paths);
+      if (locales.length === 0) {
+        clearSession();
+        return;
+      }
+
+      set({
+        locales,
+        keys: buildKeysFromLocales(locales),
+        filePaths,
+        selectedKeyName: record.selectedKeyName,
+        hasUnsavedChanges: false,
+        loadError: null,
+      });
+
+      saveSession(filePaths, record.selectedKeyName);
+    } catch {
+      clearSession();
+    }
   },
 }));
