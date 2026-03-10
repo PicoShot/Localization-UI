@@ -89,7 +89,10 @@ export function ArrayKeyEditor({
                       onElementChange(locale.languageCode, i, e.target.value)
                     }
                     onDoubleClick={() =>
-                      setEditingCell({ langCode: locale.languageCode, index: i })
+                      setEditingCell({
+                        langCode: locale.languageCode,
+                        index: i,
+                      })
                     }
                     placeholder={`Element ${i} in ${locale.languageCode}`}
                     style={{ cursor: "text" }}
@@ -117,9 +120,9 @@ export function ArrayKeyEditor({
         }}
         initialValue={
           editingCell
-            ? (((selectedKey.values[editingCell.langCode] as
-                | string[]
-                | undefined)?.[editingCell.index]) || "")
+            ? (
+                selectedKey.values[editingCell.langCode] as string[] | undefined
+              )?.[editingCell.index] || ""
             : ""
         }
         onSave={(val) => {

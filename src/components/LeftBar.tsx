@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  Flex,
-  Button,
-  Box,
-  Text,
-  IconButton,
-  Tooltip,
-} from "@radix-ui/themes";
+import { Flex, Button, Box, Text, IconButton, Tooltip } from "@radix-ui/themes";
 import {
   GearIcon,
   Pencil1Icon,

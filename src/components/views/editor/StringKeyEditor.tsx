@@ -50,9 +50,7 @@ export function StringKeyEditor({
           if (!open) setEditingLang(null);
         }}
         initialValue={
-          editingLang
-            ? ((selectedKey.values[editingLang] as string) || "")
-            : ""
+          editingLang ? (selectedKey.values[editingLang] as string) || "" : ""
         }
         onSave={(val) => {
           if (editingLang) {

@@ -31,13 +31,13 @@ export function RichTextEditorModal({
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content 
-        maxWidth="800px" 
-        style={{ 
-          width: "90vw", 
-          height: "80vh", 
-          display: "flex", 
-          flexDirection: "column" 
+      <Dialog.Content
+        maxWidth="800px"
+        style={{
+          width: "90vw",
+          height: "80vh",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         <Dialog.Title>{title}</Dialog.Title>
@@ -50,7 +50,11 @@ export function RichTextEditorModal({
             placeholder="Enter text..."
           />
           <Flex gap="3" mt="4" justify="end">
-            <Button variant="soft" color="gray" onClick={() => onOpenChange(false)}>
+            <Button
+              variant="soft"
+              color="gray"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button onClick={handleSave}>Save</Button>

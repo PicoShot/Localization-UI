@@ -1,4 +1,11 @@
-import { Dialog, Button, Flex, TextField, Text, RadioGroup } from "@radix-ui/themes";
+import {
+  Dialog,
+  Button,
+  Flex,
+  TextField,
+  Text,
+  RadioGroup,
+} from "@radix-ui/themes";
 import { useState, useEffect } from "react";
 import { UnifiedKey } from "./types";
 
@@ -30,7 +37,8 @@ export function AddKeyModal({
   const validate = (value: string): string | null => {
     const trimmed = value.trim();
     if (!trimmed) return "Key name cannot be empty.";
-    if (existingKeys.some((k) => k.name === trimmed)) return `Key "${trimmed}" already exists.`;
+    if (existingKeys.some((k) => k.name === trimmed))
+      return `Key "${trimmed}" already exists.`;
     if (/\s/.test(trimmed)) return "Key name cannot contain whitespace.";
     return null;
   };
@@ -62,7 +70,9 @@ export function AddKeyModal({
 
         <Flex direction="column" gap="4" mt="2">
           <Flex direction="column" gap="1">
-            <Text size="2" weight="medium">Key Name</Text>
+            <Text size="2" weight="medium">
+              Key Name
+            </Text>
             <TextField.Root
               placeholder="e.g. menu_title"
               value={name}
@@ -71,13 +81,20 @@ export function AddKeyModal({
               autoFocus
             />
             {error && (
-              <Text size="1" color="red">{error}</Text>
+              <Text size="1" color="red">
+                {error}
+              </Text>
             )}
           </Flex>
 
           <Flex direction="column" gap="1">
-            <Text size="2" weight="medium">Key Type</Text>
-            <RadioGroup.Root value={type} onValueChange={(v) => setType(v as "string" | "array")}>
+            <Text size="2" weight="medium">
+              Key Type
+            </Text>
+            <RadioGroup.Root
+              value={type}
+              onValueChange={(v) => setType(v as "string" | "array")}
+            >
               <Flex direction="column" gap="2">
                 <Text as="label" size="2">
                   <Flex gap="2" align="center">
@@ -96,7 +113,11 @@ export function AddKeyModal({
           </Flex>
 
           <Flex gap="3" mt="2" justify="end">
-            <Button variant="soft" color="gray" onClick={() => onOpenChange(false)}>
+            <Button
+              variant="soft"
+              color="gray"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button onClick={handleAdd}>Add Key</Button>

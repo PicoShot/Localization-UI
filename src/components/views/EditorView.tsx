@@ -47,12 +47,12 @@ export function EditorView() {
         const rect = containerRef.current.getBoundingClientRect();
         newWidth = Math.max(
           150,
-          Math.min(e.clientX - rect.left, rect.width * 0.6)
+          Math.min(e.clientX - rect.left, rect.width * 0.6),
         );
       } else {
         newWidth = Math.max(
           150,
-          Math.min(e.clientX - 60, window.innerWidth * 0.6)
+          Math.min(e.clientX - 60, window.innerWidth * 0.6),
         );
       }
       setLeftWidth(newWidth);
@@ -106,10 +106,7 @@ export function EditorView() {
             overflow: "hidden",
           }}
         >
-          <KeyDetailsPanel
-            locales={locales}
-            selectedKey={selectedKey}
-          />
+          <KeyDetailsPanel locales={locales} selectedKey={selectedKey} />
         </Flex>
       </Flex>
     </Card>

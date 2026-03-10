@@ -18,7 +18,12 @@ interface EditorState {
   addKey: (key: UnifiedKey) => void;
   deleteSelectedKey: () => void;
   setStringValue: (keyName: string, langCode: string, value: string) => void;
-  setArrayElement: (keyName: string, langCode: string, index: number, value: string) => void;
+  setArrayElement: (
+    keyName: string,
+    langCode: string,
+    index: number,
+    value: string,
+  ) => void;
   removeArrayElement: (keyName: string, index: number) => void;
   addArrayElement: (keyName: string) => void;
   clearEmptyArrayElements: (keyName: string) => void;
@@ -44,16 +49,24 @@ function buildKeysFromLocales(data: LocaleData[]): UnifiedKey[] {
   return Array.from(keyMap.values());
 }
 
-function updateKey(keys: UnifiedKey[], keyName: string, updater: (key: UnifiedKey) => UnifiedKey): UnifiedKey[] {
+function updateKey(
+  keys: UnifiedKey[],
+  keyName: string,
+  updater: (key: UnifiedKey) => UnifiedKey,
+): UnifiedKey[] {
   return keys.map((k) => {
     if (k.name !== keyName) return k;
     return updater(k);
   });
 }
 
-function keysToLocaleData(keys: UnifiedKey[], locales: LocaleData[]): LocaleData[] {
+function keysToLocaleData(
+  keys: UnifiedKey[],
+  locales: LocaleData[],
+): LocaleData[] {
   return locales.map((locale) => {
-    const translations: Record<string, string | string[] | null | undefined> = {};
+    const translations: Record<string, string | string[] | null | undefined> =
+      {};
     for (const key of keys) {
       const value = key.values[locale.languageCode];
       if (value !== undefined) {
@@ -203,7 +216,9 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
 
         for (const locale of state.locales) {
           if (Array.isArray(newVals[locale.languageCode])) {
-            newVals[locale.languageCode] = (newVals[locale.languageCode] as string[]).filter((_, i) => !indicesToRemove.has(i));
+            newVals[locale.languageCode] = (
+              newVals[locale.languageCode] as string[]
+            ).filter((_, i) => !indicesToRemove.has(i));
           }
         }
         return { ...k, values: newVals };
