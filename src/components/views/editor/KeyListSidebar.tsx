@@ -14,6 +14,8 @@ import { KeyListItem } from "./KeyListItem";
 import { KeyTreeGroupRow } from "./KeyTreeGroupRow";
 import { AddKeyModal } from "./AddKeyModal";
 import { DeleteKeyModal } from "./DeleteKeyModal";
+import { RenameKeyModal } from "./RenameKeyModal";
+import { ClearValuesModal } from "./ClearValuesModal";
 import { useEditorStore } from "@/stores/editorStore";
 import {
   buildKeyTree,
@@ -35,6 +37,9 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   setSelectedKeyName,
 }: KeyListSidebarProps) {
   const addKey = useEditorStore((s) => s.addKey);
+  const renameKey = useEditorStore((s) => s.renameKey);
+  const setKeyValues = useEditorStore((s) => s.setKeyValues);
+  const clearKeyValues = useEditorStore((s) => s.clearKeyValues);
   const deleteSelectedKey = useEditorStore((s) => s.deleteSelectedKey);
   const [searchQuery, setSearchQuery] = useState("");
   const [showStrings, setShowStrings] = useState(true);
@@ -42,6 +47,8 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const [sortByName, setSortByName] = useState(true);
   const [showAddKey, setShowAddKey] = useState(false);
   const [pendingDeleteKey, setPendingDeleteKey] = useState<string | null>(null);
+  const [pendingRenameKey, setPendingRenameKey] = useState<string | null>(null);
+  const [pendingClearKey, setPendingClearKey] = useState<string | null>(null);
   const [groupByPrefix, setGroupByPrefix] = useState(false);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
     () => new Set(),
@@ -127,6 +134,65 @@ export const KeyListSidebar = memo(function KeyListSidebar({
     deleteSelectedKey();
     setPendingDeleteKey(null);
   }, [pendingDeleteKey, setSelectedKeyName, deleteSelectedKey]);
+
+  const handleRenameRequest = useCallback((name: string) => {
+    setPendingRenameKey(name);
+  }, []);
+
+  const handleConfirmRename = useCallback(
+    (oldName: string, newName: string) => {
+      renameKey(oldName, newName);
+      setPendingRenameKey(null);
+    },
+    [renameKey],
+  );
+
+  const handleClearRequest = useCallback((name: string) => {
+    setPendingClearKey(name);
+  }, []);
+
+  const handleConfirmClear = useCallback(() => {
+    if (!pendingClearKey) return;
+    clearKeyValues(pendingClearKey);
+    setPendingClearKey(null);
+  }, [pendingClearKey, clearKeyValues]);
+
+  const handlePasteName = useCallback(
+    async (keyName: string) => {
+      const text = (await navigator.clipboard.readText()).trim();
+      if (!text || /\s/.test(text)) return;
+      if (text === keyName) return;
+      if (keys.some((k) => k.name === text)) return;
+      renameKey(keyName, text);
+    },
+    [keys, renameKey],
+  );
+
+  const handlePasteJsonData = useCallback(
+    async (keyName: string) => {
+      const text = await navigator.clipboard.readText();
+      try {
+        const parsed = JSON.parse(text);
+        if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return;
+        const values: Record<string, string | string[]> = {};
+        for (const [lang, val] of Object.entries(parsed)) {
+          if (typeof val === "string") {
+            values[lang] = val;
+          } else if (
+            Array.isArray(val) &&
+            val.every((v) => typeof v === "string")
+          ) {
+            values[lang] = val as string[];
+          }
+        }
+        if (Object.keys(values).length === 0) return;
+        setKeyValues(keyName, values);
+      } catch {
+        return;
+      }
+    },
+    [setKeyValues],
+  );
 
   return (
     <Flex
@@ -262,6 +328,10 @@ export const KeyListSidebar = memo(function KeyListSidebar({
                     isSelected={item.node.key.name === selectedKeyName}
                     onSelect={handleSelect}
                     onDelete={handleDeleteRequest}
+                    onRename={handleRenameRequest}
+                    onClearValues={handleClearRequest}
+                    onPasteName={handlePasteName}
+                    onPasteJsonData={handlePasteJsonData}
                     displayName={item.node.label}
                     depth={item.depth}
                   />
@@ -274,6 +344,10 @@ export const KeyListSidebar = memo(function KeyListSidebar({
                   isSelected={k.name === selectedKeyName}
                   onSelect={handleSelect}
                   onDelete={handleDeleteRequest}
+                  onRename={handleRenameRequest}
+                  onClearValues={handleClearRequest}
+                  onPasteName={handlePasteName}
+                  onPasteJsonData={handlePasteJsonData}
                 />
               ))}
         </Flex>
@@ -291,6 +365,21 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         onOpenChange={(open) => { if (!open) setPendingDeleteKey(null); }}
         keyName={pendingDeleteKey ?? ""}
         onConfirm={handleConfirmDelete}
+      />
+
+      <RenameKeyModal
+        open={pendingRenameKey !== null}
+        onOpenChange={(open) => { if (!open) setPendingRenameKey(null); }}
+        currentName={pendingRenameKey ?? ""}
+        existingKeys={keys}
+        onRename={handleConfirmRename}
+      />
+
+      <ClearValuesModal
+        open={pendingClearKey !== null}
+        onOpenChange={(open) => { if (!open) setPendingClearKey(null); }}
+        keyName={pendingClearKey ?? ""}
+        onConfirm={handleConfirmClear}
       />
     </Flex>
   );

@@ -15,6 +15,10 @@ interface KeyListItemProps {
   isSelected: boolean;
   onSelect: (name: string) => void;
   onDelete: (name: string) => void;
+  onRename: (name: string) => void;
+  onClearValues: (name: string) => void;
+  onPasteName: (name: string) => void;
+  onPasteJsonData: (name: string) => void;
   displayName?: string;
   depth?: number;
 }
@@ -24,9 +28,21 @@ export const KeyListItem = memo(function KeyListItem({
   isSelected,
   onSelect,
   onDelete,
+  onRename,
+  onClearValues,
+  onPasteName,
+  onPasteJsonData,
   displayName,
   depth = 0,
 }: KeyListItemProps) {
+  const handleCopyName = () => {
+    navigator.clipboard.writeText(item.name);
+  };
+
+  const handleCopyJsonData = () => {
+    navigator.clipboard.writeText(JSON.stringify(item.values, null, 2));
+  };
+
   return (
     <ContextMenu.Root>
       <ContextMenu.Trigger>
@@ -77,7 +93,7 @@ export const KeyListItem = memo(function KeyListItem({
       </ContextMenu.Trigger>
 
       <ContextMenu.Content>
-        <ContextMenu.Item shortcut="⌘ + R">
+        <ContextMenu.Item shortcut="⌘ + R" onClick={() => onRename(item.name)}>
           <Flex gap="2" align="center">
             <Edit2 size={14} />
             Rename
@@ -105,8 +121,12 @@ export const KeyListItem = memo(function KeyListItem({
             </Flex>
           </ContextMenu.SubTrigger>
           <ContextMenu.SubContent>
-            <ContextMenu.Item shortcut="⌘ + C">Name</ContextMenu.Item>
-            <ContextMenu.Item shortcut="⌘ + J + C">Json Data</ContextMenu.Item>
+            <ContextMenu.Item shortcut="⌘ + C" onClick={handleCopyName}>
+              Name
+            </ContextMenu.Item>
+            <ContextMenu.Item shortcut="⌘ + J + C" onClick={handleCopyJsonData}>
+              Json Data
+            </ContextMenu.Item>
           </ContextMenu.SubContent>
         </ContextMenu.Sub>
 
@@ -118,14 +138,18 @@ export const KeyListItem = memo(function KeyListItem({
             </Flex>
           </ContextMenu.SubTrigger>
           <ContextMenu.SubContent>
-            <ContextMenu.Item shortcut="⌘ + V">Name</ContextMenu.Item>
-            <ContextMenu.Item shortcut="⌘ + J + V">Json Data</ContextMenu.Item>
+            <ContextMenu.Item shortcut="⌘ + V" onClick={() => onPasteName(item.name)}>
+              Name
+            </ContextMenu.Item>
+            <ContextMenu.Item shortcut="⌘ + J + V" onClick={() => onPasteJsonData(item.name)}>
+              Json Data
+            </ContextMenu.Item>
           </ContextMenu.SubContent>
         </ContextMenu.Sub>
 
         <ContextMenu.Separator />
 
-        <ContextMenu.Item shortcut="⌘ + E">
+        <ContextMenu.Item shortcut="⌘ + E" onClick={() => onClearValues(item.name)}>
           <Flex gap="2" align="center">
             <Eraser size={14} />
             Clear Values

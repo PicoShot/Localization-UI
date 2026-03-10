@@ -18,7 +18,12 @@ interface EditorState {
   setLoadError: (error: string | null) => void;
   setSelectedKeyName: (name: string | null) => void;
   addKey: (key: UnifiedKey) => void;
+  renameKey: (oldName: string, newName: string) => void;
   deleteSelectedKey: () => void;
+  setKeyValues: (
+    keyName: string,
+    values: Record<string, string | string[] | null | undefined>,
+  ) => void;
   setStringValue: (keyName: string, langCode: string, value: string) => void;
   setArrayElement: (
     keyName: string,
@@ -29,6 +34,7 @@ interface EditorState {
   removeArrayElement: (keyName: string, index: number) => void;
   addArrayElement: (keyName: string) => void;
   clearEmptyArrayElements: (keyName: string) => void;
+  clearKeyValues: (keyName: string) => void;
   saveFiles: () => Promise<void>;
   restoreSession: () => Promise<void>;
 }
@@ -131,10 +137,32 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
     }));
   },
 
+  renameKey: (oldName, newName) => {
+    set((state) => ({
+      keys: state.keys.map((k) => {
+        if (k.name !== oldName) return k;
+        return { ...k, name: newName };
+      }),
+      selectedKeyName:
+        state.selectedKeyName === oldName ? newName : state.selectedKeyName,
+      hasUnsavedChanges: true,
+    }));
+  },
+
   deleteSelectedKey: () => {
     set((state) => ({
       keys: state.keys.filter((k) => k.name !== state.selectedKeyName),
       selectedKeyName: null,
+      hasUnsavedChanges: true,
+    }));
+  },
+
+  setKeyValues: (keyName, values) => {
+    set((state) => ({
+      keys: updateKey(state.keys, keyName, (k) => ({
+        ...k,
+        values: { ...k.values, ...values },
+      })),
       hasUnsavedChanges: true,
     }));
   },
@@ -230,6 +258,19 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
           }
         }
         return { ...k, values: newVals };
+      }),
+      hasUnsavedChanges: true,
+    }));
+  },
+
+  clearKeyValues: (keyName) => {
+    set((state) => ({
+      keys: updateKey(state.keys, keyName, (k) => {
+        const cleared: Record<string, string | string[] | null | undefined> = {};
+        for (const [lang, val] of Object.entries(k.values)) {
+          cleared[lang] = Array.isArray(val) ? val.map(() => "") : "";
+        }
+        return { ...k, values: cleared };
       }),
       hasUnsavedChanges: true,
     }));
