@@ -70,7 +70,7 @@ export const KeyListItem = memo(function KeyListItem({
       </ContextMenu.Trigger>
 
       <ContextMenu.Content>
-        <ContextMenu.Item>
+        <ContextMenu.Item shortcut="⌘ + R">
           <Flex gap="2" align="center">
             <Edit2 size={14} />
             Rename
@@ -85,8 +85,8 @@ export const KeyListItem = memo(function KeyListItem({
             </Flex>
           </ContextMenu.SubTrigger>
           <ContextMenu.SubContent>
-            <ContextMenu.Item>DeepL</ContextMenu.Item>
-            <ContextMenu.Item>Gemini</ContextMenu.Item>
+            <ContextMenu.Item shortcut="⌘ + T + D">DeepL</ContextMenu.Item>
+            <ContextMenu.Item shortcut="⌘ + T + G">Gemini</ContextMenu.Item>
           </ContextMenu.SubContent>
         </ContextMenu.Sub>
 
@@ -98,8 +98,8 @@ export const KeyListItem = memo(function KeyListItem({
             </Flex>
           </ContextMenu.SubTrigger>
           <ContextMenu.SubContent>
-            <ContextMenu.Item>Name</ContextMenu.Item>
-            <ContextMenu.Item>Json Data</ContextMenu.Item>
+            <ContextMenu.Item shortcut="⌘ + C">Name</ContextMenu.Item>
+            <ContextMenu.Item shortcut="⌘ + J + C">Json Data</ContextMenu.Item>
           </ContextMenu.SubContent>
         </ContextMenu.Sub>
 
@@ -111,21 +111,21 @@ export const KeyListItem = memo(function KeyListItem({
             </Flex>
           </ContextMenu.SubTrigger>
           <ContextMenu.SubContent>
-            <ContextMenu.Item>Name</ContextMenu.Item>
-            <ContextMenu.Item>Json Data</ContextMenu.Item>
+            <ContextMenu.Item shortcut="⌘ + V">Name</ContextMenu.Item>
+            <ContextMenu.Item shortcut="⌘ + J + V">Json Data</ContextMenu.Item>
           </ContextMenu.SubContent>
         </ContextMenu.Sub>
 
         <ContextMenu.Separator />
 
-        <ContextMenu.Item>
+        <ContextMenu.Item shortcut="⌘ + E">
           <Flex gap="2" align="center">
             <Eraser size={14} />
             Clear Values
           </Flex>
         </ContextMenu.Item>
 
-        <ContextMenu.Item color="red">
+        <ContextMenu.Item color="red" shortcut="⌘ + X">
           <Flex gap="2" align="center">
             <Trash2 size={14} />
             Delete Key
