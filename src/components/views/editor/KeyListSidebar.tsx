@@ -8,11 +8,17 @@ import {
   Text,
   ScrollArea,
 } from "@radix-ui/themes";
-import { Plus, Search, X } from "lucide-react";
+import { Plus, Search, X, ChevronsDownUp, ChevronsUpDown } from "lucide-react";
 import { UnifiedKey } from "./types";
 import { KeyListItem } from "./KeyListItem";
+import { KeyTreeGroupRow } from "./KeyTreeGroupRow";
 import { AddKeyModal } from "./AddKeyModal";
 import { useEditorStore } from "../../../stores/editorStore";
+import {
+  buildKeyTree,
+  flattenTree,
+  collectAllGroupPaths,
+} from "./keyTree";
 
 interface KeyListSidebarProps {
   width: number;
@@ -33,6 +39,10 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const [showArrays, setShowArrays] = useState(true);
   const [sortByName, setSortByName] = useState(true);
   const [showAddKey, setShowAddKey] = useState(false);
+  const [groupByPrefix, setGroupByPrefix] = useState(false);
+  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
+    () => new Set(),
+  );
 
   const filteredKeys = useMemo(() => {
     let result = keys.filter((k) => {
@@ -58,6 +68,44 @@ export const KeyListSidebar = memo(function KeyListSidebar({
     (name: string) => setSelectedKeyName(name),
     [setSelectedKeyName],
   );
+
+  const tree = useMemo(() => {
+    if (!groupByPrefix) return [];
+    return buildKeyTree(filteredKeys, sortByName);
+  }, [groupByPrefix, filteredKeys, sortByName]);
+
+  const allGroupPaths = useMemo(() => {
+    const paths = new Set<string>();
+    if (groupByPrefix) collectAllGroupPaths(tree, paths);
+    return paths;
+  }, [groupByPrefix, tree]);
+
+  const activeExpandedPaths = useMemo(() => {
+    if (searchQuery) return allGroupPaths;
+    return expandedPaths;
+  }, [searchQuery, allGroupPaths, expandedPaths]);
+
+  const renderItems = useMemo(() => {
+    if (!groupByPrefix) return [];
+    return flattenTree(tree, activeExpandedPaths, 0);
+  }, [groupByPrefix, tree, activeExpandedPaths]);
+
+  const toggleGroup = useCallback((fullPath: string) => {
+    setExpandedPaths((prev) => {
+      const next = new Set(prev);
+      if (next.has(fullPath)) next.delete(fullPath);
+      else next.add(fullPath);
+      return next;
+    });
+  }, []);
+
+  const expandAll = useCallback(() => {
+    setExpandedPaths(new Set(allGroupPaths));
+  }, [allGroupPaths]);
+
+  const collapseAll = useCallback(() => {
+    setExpandedPaths(new Set());
+  }, []);
 
   const handleAddKey = useCallback(
     (newKey: UnifiedKey) => {
@@ -144,6 +192,35 @@ export const KeyListSidebar = memo(function KeyListSidebar({
               Sort A-Z
             </Flex>
           </Text>
+          <Text as="label" size="2">
+            <Flex gap="2" align="center">
+              <Checkbox
+                checked={groupByPrefix}
+                onCheckedChange={(c) => setGroupByPrefix(!!c)}
+              />
+              Group
+            </Flex>
+          </Text>
+          {groupByPrefix && (
+            <>
+              <IconButton
+                variant="ghost"
+                size="1"
+                title="Expand All"
+                onClick={expandAll}
+              >
+                <ChevronsUpDown size={14} />
+              </IconButton>
+              <IconButton
+                variant="ghost"
+                size="1"
+                title="Collapse All"
+                onClick={collapseAll}
+              >
+                <ChevronsDownUp size={14} />
+              </IconButton>
+            </>
+          )}
         </Flex>
         <Text size="1" color="gray">
           Found: {filteredKeys.length} / {keys.length} keys
@@ -152,14 +229,35 @@ export const KeyListSidebar = memo(function KeyListSidebar({
 
       <ScrollArea type="auto" style={{ flex: 1 }}>
         <Flex direction="column" p="1">
-          {filteredKeys.map((k) => (
-            <KeyListItem
-              key={k.name}
-              item={k}
-              isSelected={k.name === selectedKeyName}
-              onSelect={handleSelect}
-            />
-          ))}
+          {groupByPrefix
+            ? renderItems.map((item) =>
+                item.kind === "group" ? (
+                  <KeyTreeGroupRow
+                    key={`g:${item.node.fullPath}`}
+                    node={item.node}
+                    depth={item.depth}
+                    isExpanded={activeExpandedPaths.has(item.node.fullPath)}
+                    onToggle={toggleGroup}
+                  />
+                ) : (
+                  <KeyListItem
+                    key={item.node.key.name}
+                    item={item.node.key}
+                    isSelected={item.node.key.name === selectedKeyName}
+                    onSelect={handleSelect}
+                    displayName={item.node.label}
+                    depth={item.depth}
+                  />
+                ),
+              )
+            : filteredKeys.map((k) => (
+                <KeyListItem
+                  key={k.name}
+                  item={k}
+                  isSelected={k.name === selectedKeyName}
+                  onSelect={handleSelect}
+                />
+              ))}
         </Flex>
       </ScrollArea>
 

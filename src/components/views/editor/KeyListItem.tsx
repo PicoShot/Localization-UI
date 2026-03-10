@@ -14,12 +14,16 @@ interface KeyListItemProps {
   item: UnifiedKey;
   isSelected: boolean;
   onSelect: (name: string) => void;
+  displayName?: string;
+  depth?: number;
 }
 
 export const KeyListItem = memo(function KeyListItem({
   item,
   isSelected,
   onSelect,
+  displayName,
+  depth = 0,
 }: KeyListItemProps) {
   return (
     <ContextMenu.Root>
@@ -28,6 +32,7 @@ export const KeyListItem = memo(function KeyListItem({
           onClick={() => onSelect(item.name)}
           style={{
             padding: "4px 8px",
+            paddingLeft: `${8 + depth * 16}px`,
             borderRadius: "6px",
             cursor: "pointer",
             backgroundColor: isSelected ? "var(--green-4)" : "transparent",
@@ -63,7 +68,7 @@ export const KeyListItem = memo(function KeyListItem({
                 whiteSpace: "nowrap",
               }}
             >
-              {item.name}
+              {displayName ?? item.name}
             </Text>
           </Flex>
         </Box>
