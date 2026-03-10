@@ -202,29 +202,31 @@ export const KeyListSidebar = memo(function KeyListSidebar({
             </Flex>
           </Text>
         </Flex>
-        <Text size="1" color="gray">
-          Found: {filteredKeys.length} / {keys.length} keys
-        </Text>
-        {groupByPrefix && (
-          <>
-            <IconButton
-              variant="ghost"
-              size="1"
-              title="Expand All"
-              onClick={expandAll}
-            >
-              <ChevronsUpDown size={14} />
-            </IconButton>
-            <IconButton
-              variant="ghost"
-              size="1"
-              title="Collapse All"
-              onClick={collapseAll}
-            >
-              <ChevronsDownUp size={14} />
-            </IconButton>
-          </>
-        )}
+        <Flex gap="4" align="center">
+          <Text size="1" color="gray">
+            Found: {filteredKeys.length} / {keys.length} keys
+          </Text>
+          {groupByPrefix && (
+            <>
+              <IconButton
+                variant="ghost"
+                size="1"
+                title="Expand All"
+                onClick={expandAll}
+              >
+                <ChevronsUpDown size={14} />
+              </IconButton>
+              <IconButton
+                variant="ghost"
+                size="1"
+                title="Collapse All"
+                onClick={collapseAll}
+              >
+                <ChevronsDownUp size={14} />
+              </IconButton>
+            </>
+          )}
+        </Flex>
       </Flex>
 
       <ScrollArea type="auto" style={{ flex: 1 }}>
