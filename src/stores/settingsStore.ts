@@ -34,7 +34,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   deeplContext: "",
   deeplApiKey: "",
 
-  geminiModel: "gemini-2.0-flash",
+  geminiModel: "gemini-2.5-flash-lite",
   geminiCustomModel: "",
   geminiApiKey: "",
 
