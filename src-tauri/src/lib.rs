@@ -20,6 +20,7 @@ pub fn run() {
     //     }));
     // }
 
+    builder = builder.plugin(tauri_plugin_os::init());
     builder = builder.plugin(tauri_plugin_keyring::init());
     builder = builder.plugin(tauri_plugin_websocket::init());
     builder = builder.plugin(tauri_plugin_clipboard_manager::init());

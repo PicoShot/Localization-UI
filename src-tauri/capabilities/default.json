@@ -22,8 +22,12 @@
     {
       "identifier": "http:default",
       "allow": [
-        { "url": "https://*.deepl.com/v2/translate" },
-        { "url": "https://generativelanguage.googleapis.com" }
+        {
+          "url": "https://*.deepl.com/v2/translate"
+        },
+        {
+          "url": "https://generativelanguage.googleapis.com"
+        }
       ]
     },
     "clipboard-manager:allow-read-text",
@@ -32,6 +36,7 @@
     "keyring:allow-set-password",
     "keyring:allow-get-password",
     "keyring:allow-delete-password",
-    "keyring:allow-ping"
+    "keyring:allow-ping",
+    "os:allow-hostname"
   ]
 }
