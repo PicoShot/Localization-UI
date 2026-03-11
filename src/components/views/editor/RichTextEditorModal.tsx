@@ -49,7 +49,7 @@ export function RichTextEditorModal({
             size="3"
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            style={{ flexGrow: 1, minHeight: "300px", fontFamily: "inherit" }}
+            style={{ flexGrow: 1, fontFamily: "inherit" }}
             placeholder="Enter text..."
           />
           <Flex gap="3" mt="4" justify="end">

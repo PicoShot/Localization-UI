@@ -2,7 +2,6 @@ import { Flex, Text } from "@radix-ui/themes";
 import {
   Cross1Icon,
   MinusIcon,
-  SquareIcon,
   SunIcon,
   MoonIcon,
 } from "@radix-ui/react-icons";
@@ -124,7 +123,20 @@ export function TitleBar() {
           }}
           className="hover:bg-[var(--gray-a3)] transition-colors"
         >
-          <SquareIcon width="12" height="12" />
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 15 15"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M2 2H13V13H2V2ZM3 3V12H12V3H3Z"
+              fill="currentColor"
+            />
+          </svg>
         </div>
 
         <div
