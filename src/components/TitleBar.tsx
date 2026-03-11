@@ -17,7 +17,7 @@ export function TitleBar() {
   const hasUnsavedChanges = useEditorStore((s) => s.hasUnsavedChanges);
   const saveFiles = useEditorStore((s) => s.saveFiles);
   const filePaths = useEditorStore((s) => s.filePaths);
-  const keysCount = useEditorStore((s) => s.keys.length);
+  const keysCount = useEditorStore((s) => s.locales.length);
 
   const isLoaded = keysCount > 0;
   const canSave = filePaths.size > 0;

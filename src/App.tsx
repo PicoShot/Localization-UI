@@ -8,7 +8,7 @@ import { TitleBar } from "@/components/TitleBar";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
 function App() {
-  const isLoaded = useEditorStore((s) => s.keys.length > 0);
+  const isLoaded = useEditorStore((s) => s.locales.length > 0);
 
   useEffect(() => {
     useSettingsStore.getState().loadSettings();
