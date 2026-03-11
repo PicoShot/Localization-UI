@@ -7,7 +7,7 @@ import {
 } from "@radix-ui/react-icons";
 import { Save } from "lucide-react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { useTheme } from "./ThemeProvider";
+import { useTheme } from "@/hooks/useTheme";
 import { useEditorStore } from "@/stores/editorStore";
 
 export function TitleBar() {

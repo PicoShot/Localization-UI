@@ -90,7 +90,7 @@ export class LocaleBlocSerializer {
     offset = this.writeEntryTable(view, offset, data.translations, stringToId);
 
     // Write string pool
-    offset = this.writeStringPool(uncompressedData, offset, stringPoolBytes);
+    this.writeStringPool(uncompressedData, offset, stringPoolBytes);
 
     // Compute and write CRC32 over the uncompressed data so far (excluding the 4 bytes for CRC itself)
     const crc = computeCrc32(uncompressedData, 0, uncompressedData.length - 4);
@@ -259,7 +259,9 @@ export class LocaleBlocSerializer {
     }
   }
 
-  private static buildStringPool(translations: Record<string, any>): string[] {
+  private static buildStringPool(
+    translations: Record<string, string | string[] | null | undefined>,
+  ): string[] {
     const pool = new Set<string>();
 
     for (const [key, value] of Object.entries(translations)) {
@@ -286,7 +288,7 @@ export class LocaleBlocSerializer {
   }
 
   private static calculateEntryTableSize(
-    translations: Record<string, any>,
+    translations: Record<string, string | string[] | null | undefined>,
   ): number {
     let size = 0;
     for (const value of Object.values(translations)) {
@@ -344,13 +346,12 @@ export class LocaleBlocSerializer {
     offset += 4;
 
     view.setUint32(offset, stringPoolOffset, true);
-    offset += 4;
   }
 
   private static writeEntryTable(
     view: DataView,
     offset: number,
-    translations: Record<string, any>,
+    translations: Record<string, string | string[] | null | undefined>,
     stringToId: Map<string, number>,
   ): number {
     for (const [key, value] of Object.entries(translations)) {
@@ -430,7 +431,6 @@ export class LocaleBlocSerializer {
     offset += 4;
 
     const stringPoolOffset = view.getUint32(offset, true);
-    offset += 4;
 
     return { version, languageCode, entryCount, stringCount, stringPoolOffset };
   }
@@ -441,8 +441,9 @@ export class LocaleBlocSerializer {
     entryCount: number,
     stringPoolOffset: number,
     stringCount: number,
-  ): Record<string, any> {
-    const translations: Record<string, any> = {};
+  ): Record<string, string | string[] | null | undefined> {
+    const translations: Record<string, string | string[] | null | undefined> =
+      {};
 
     const stringPool = this.readStringPool(data, stringPoolOffset, stringCount);
     const view = new DataView(data.buffer, data.byteOffset, data.byteLength);

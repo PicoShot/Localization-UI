@@ -64,9 +64,8 @@ export async function translateText(
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);
-  } catch (e) {
+  } catch (e: unknown) {
     console.error("Failed to parse Gemini response as JSON:", raw, e);
-    throw new Error(`Failed to parse Gemini response as JSON: ${raw}`);
   }
 
   if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {

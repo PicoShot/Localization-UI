@@ -31,10 +31,11 @@ export async function translateText(
 
   const url = `${baseUrl.replace(/\/$/, "")}/v2/translate`;
 
-  const body: any = {
+  const body = {
     text: texts,
     source_lang: sourceLang.toUpperCase(),
     target_lang: targetLang.toUpperCase(),
+    context: "",
   };
 
   if (context && context.trim() !== "") {
@@ -61,5 +62,5 @@ export async function translateText(
     throw new Error("Invalid response format from DeepL API");
   }
 
-  return data.translations.map((t: any) => t.text);
+  return data.translations.map((t: { text: string }) => t.text);
 }

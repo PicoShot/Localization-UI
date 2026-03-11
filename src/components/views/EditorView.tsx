@@ -42,7 +42,7 @@ export function EditorView() {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging.current) return;
 
-      let newWidth = 300;
+      let newWidth: number;
       if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
         newWidth = Math.max(

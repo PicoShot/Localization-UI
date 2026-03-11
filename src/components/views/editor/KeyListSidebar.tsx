@@ -404,7 +404,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         <Button
           variant="soft"
           size="2"
-          color={store.accentColor as any}
+          color={store.accentColor as never}
           style={{ flex: 1 }}
           onClick={() => setShowAddKey(true)}
         >

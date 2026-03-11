@@ -1,5 +1,5 @@
 import { Dialog, Button, Flex, TextField, Text } from "@radix-ui/themes";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface RenameGroupModalProps {
   open: boolean;
@@ -16,11 +16,16 @@ export function RenameGroupModal({
 }: RenameGroupModalProps) {
   const [newPrefix, setNewPrefix] = useState("");
 
-  useEffect(() => {
+  const [prevOpen, setPrevOpen] = useState(open);
+  const [prevCurrentPrefix, setPrevCurrentPrefix] = useState(currentPrefix);
+
+  if (open !== prevOpen || currentPrefix !== prevCurrentPrefix) {
+    setPrevOpen(open);
+    setPrevCurrentPrefix(currentPrefix);
     if (open) {
       setNewPrefix(currentPrefix);
     }
-  }, [open, currentPrefix]);
+  }
 
   const handleRename = () => {
     const trimmed = newPrefix.trim();

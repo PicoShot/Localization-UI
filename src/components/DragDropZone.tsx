@@ -51,7 +51,7 @@ export function DragDropZone() {
     items: DataTransferItemList,
   ): Promise<File[]> => {
     const files: File[] = [];
-    const queue: any[] = [];
+    const queue: FileSystemEntry[] = [];
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i].webkitGetAsEntry();
@@ -60,13 +60,15 @@ export function DragDropZone() {
 
     while (queue.length > 0) {
       const entry = queue.shift();
+      if (!entry) continue;
+
       if (entry.isFile && entry.name.endsWith(".bloc")) {
-        const file = await new Promise<File>((resolve) => entry.file(resolve));
+        const file = await new Promise<File>((resolve) => (entry as FileSystemFileEntry).file(resolve));
         files.push(file);
       } else if (entry.isDirectory) {
-        const reader = entry.createReader();
-        const entries = await new Promise<any[]>((resolve) => {
-          reader.readEntries((results: any[]) => resolve(results));
+        const reader = (entry as FileSystemDirectoryEntry).createReader();
+        const entries = await new Promise<FileSystemEntry[]>((resolve) => {
+          reader.readEntries((results: FileSystemEntry[]) => resolve(results));
         });
         queue.push(...entries);
       }
@@ -74,22 +76,23 @@ export function DragDropZone() {
     return files;
   };
 
-  const handleDrop = useCallback(
-    async (e: React.DragEvent) => {
-      e.preventDefault();
-      setIsDragActive(false);
-      setIsProcessing(true);
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragActive(false);
+    setIsProcessing(true);
 
-      try {
-        const files = await getFilesFromDataTransferItems(e.dataTransfer.items);
-        await processWebFiles(files);
-      } catch (err: any) {
-        setLoadError("Drag logic error: " + err.message);
-        setIsProcessing(false);
-      }
-    },
-    [loadFiles, setLoadError],
-  );
+    try {
+      const files = await getFilesFromDataTransferItems(e.dataTransfer.items);
+      await processWebFiles(files);
+    } catch (err: unknown) {
+      setLoadError(
+        err instanceof Error
+          ? "Drag logic error: " + err.message
+          : "An unknown error occurred during drag and drop",
+      );
+      setIsProcessing(false);
+    }
+  };
 
   const processTauriPaths = async (paths: string[]) => {
     setIsProcessing(true);
@@ -100,8 +103,12 @@ export function DragDropZone() {
       } else {
         loadFiles(locales, filePaths);
       }
-    } catch (err: any) {
-      setLoadError("Failed to read selected files.");
+    } catch (err: unknown) {
+      setLoadError(
+        err instanceof Error
+          ? "Failed to read selected files: " + err.message
+          : "Failed to read selected files.",
+      );
     } finally {
       setIsProcessing(false);
     }
@@ -114,7 +121,7 @@ export function DragDropZone() {
     });
     if (selected) {
       const paths = Array.isArray(selected) ? selected : [selected];
-      const stringPaths = paths.map((p: any) =>
+      const stringPaths = paths.map((p: string | { path: string }) =>
         typeof p === "string" ? p : p.path,
       );
 
@@ -129,7 +136,7 @@ export function DragDropZone() {
     });
     if (selected) {
       const paths = Array.isArray(selected) ? selected : [selected];
-      const stringPaths = paths.map((p: any) =>
+      const stringPaths = paths.map((p: string | { path: string }) =>
         typeof p === "string" ? p : p.path,
       );
       await processTauriPaths(stringPaths);
@@ -162,7 +169,7 @@ export function DragDropZone() {
           <Text
             size="5"
             weight="bold"
-            color={isDragActive ? (store.accentColor as any) : "gray"}
+            color={isDragActive ? (store.accentColor as never) : "gray"}
           >
             {isProcessing
               ? "Processing..."

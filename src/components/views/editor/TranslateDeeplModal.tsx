@@ -84,7 +84,7 @@ export function TranslateDeeplModal({
       setSelectedElements(new Set());
       setElementTexts({});
     }
-  }, [open, item]);
+  }, [open, item, availableSourceLocales]);
 
   const toggleElement = (index: number) => {
     setSelectedElements((prev) => {
@@ -283,8 +283,12 @@ export function TranslateDeeplModal({
 
       setKeyValues(keyName, newValues);
       onOpenChange(false);
-    } catch (err: any) {
-      setError(err.message || "An unknown error occurred during translation");
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An unknown error occurred during translation",
+      );
     } finally {
       setIsTranslating(false);
     }
@@ -345,7 +349,7 @@ export function TranslateDeeplModal({
         <Flex direction="column" gap="4">
           <RadioGroup.Root
             value={sourceMode}
-            onValueChange={(val: any) => setSourceMode(val)}
+            onValueChange={(val: "existing" | "custom") => setSourceMode(val)}
             disabled={!hasApiKey || isTranslating}
           >
             <Flex direction="column" gap="3">

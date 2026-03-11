@@ -27,6 +27,7 @@ export async function loadApiKey(type: KeyringType): Promise<string | null> {
     const key = await getPassword(SERVICE_NAME, type);
     return key;
   } catch (err) {
+    console.error("Failed to load API key from Keyring:", err);
     return null;
   }
 }

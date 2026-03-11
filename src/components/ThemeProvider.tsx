@@ -1,17 +1,7 @@
-import React, { createContext, useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Theme } from "@radix-ui/themes";
 import { useSettingsStore } from "../stores/settingsStore";
-import {
-  //getCurrentWindow,
-  type Theme as TauriTheme,
-} from "@tauri-apps/api/window";
-
-interface ThemeContextType {
-  theme: TauriTheme;
-  toggleTheme: () => void;
-}
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+import { ThemeContext } from "../hooks/useTheme";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const store = useSettingsStore();
@@ -30,17 +20,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
       <Theme
         appearance={theme}
-        accentColor={store.accentColor as any}
+        accentColor={store.accentColor as never}
         grayColor="slate"
       >
         {children}
       </Theme>
     </ThemeContext.Provider>
   );
-}
-
-export function useTheme() {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error("useTheme must be used within ThemeProvider");
-  return ctx;
 }

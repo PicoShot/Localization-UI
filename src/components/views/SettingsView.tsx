@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Flex,
   Heading,
@@ -23,18 +23,18 @@ export function SettingsView() {
   const [localDeeplKey, setLocalDeeplKey] = useState("");
   const [showGeminiKey, setShowGeminiKey] = useState(false);
   const [localGeminiKey, setLocalGeminiKey] = useState("");
+  const [prevDeeplApiKey, setPrevDeeplApiKey] = useState(store.deeplApiKey);
+  const [prevGeminiApiKey, setPrevGeminiApiKey] = useState(store.geminiApiKey);
 
-  useEffect(() => {
-    store.loadSettings();
-  }, []);
-
-  useEffect(() => {
+  if (store.deeplApiKey !== prevDeeplApiKey) {
+    setPrevDeeplApiKey(store.deeplApiKey);
     setLocalDeeplKey(store.deeplApiKey);
-  }, [store.deeplApiKey]);
+  }
 
-  useEffect(() => {
+  if (store.geminiApiKey !== prevGeminiApiKey) {
+    setPrevGeminiApiKey(store.geminiApiKey);
     setLocalGeminiKey(store.geminiApiKey);
-  }, [store.geminiApiKey]);
+  }
 
   const handleSaveDeeplKey = async () => {
     await store.setDeeplApiKey(localDeeplKey);

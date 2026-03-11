@@ -1,5 +1,5 @@
 import { Dialog, Button, Flex, TextField, Text } from "@radix-ui/themes";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { UnifiedKey } from "@/types/types";
 
 interface RenameKeyModalProps {
@@ -20,12 +20,17 @@ export function RenameKeyModal({
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const [prevOpen, setPrevOpen] = useState(open);
+  const [prevCurrentName, setPrevCurrentName] = useState(currentName);
+
+  if (open !== prevOpen || currentName !== prevCurrentName) {
+    setPrevOpen(open);
+    setPrevCurrentName(currentName);
     if (open) {
       setName(currentName);
       setError(null);
     }
-  }, [open, currentName]);
+  }
 
   const validate = (value: string): string | null => {
     const trimmed = value.trim();

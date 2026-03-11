@@ -6,7 +6,7 @@ import {
   Text,
   RadioGroup,
 } from "@radix-ui/themes";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { UnifiedKey } from "@/types/types";
 
 interface AddKeyModalProps {
@@ -28,13 +28,18 @@ export function AddKeyModal({
   const [type, setType] = useState<"string" | "array">("string");
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const [prevOpen, setPrevOpen] = useState(open);
+  const [prevInitialName, setPrevInitialName] = useState(initialName);
+
+  if (open !== prevOpen || initialName !== prevInitialName) {
+    setPrevOpen(open);
+    setPrevInitialName(initialName);
     if (open) {
       setName(initialName ?? "");
       setType("string");
       setError(null);
     }
-  }, [open, initialName]);
+  }
 
   const validate = (value: string): string | null => {
     const trimmed = value.trim();

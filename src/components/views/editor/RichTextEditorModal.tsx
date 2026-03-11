@@ -1,5 +1,5 @@
 import { Dialog, Button, Flex, TextArea } from "@radix-ui/themes";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface RichTextEditorModalProps {
   open: boolean;
@@ -18,11 +18,16 @@ export function RichTextEditorModal({
 }: RichTextEditorModalProps) {
   const [value, setValue] = useState(initialValue);
 
-  useEffect(() => {
+  const [prevOpen, setPrevOpen] = useState(open);
+  const [prevInitialValue, setPrevInitialValue] = useState(initialValue);
+
+  if (open !== prevOpen || initialValue !== prevInitialValue) {
+    setPrevOpen(open);
+    setPrevInitialValue(initialValue);
     if (open) {
       setValue(initialValue);
     }
-  }, [open, initialValue]);
+  }
 
   const handleSave = () => {
     onSave(value);

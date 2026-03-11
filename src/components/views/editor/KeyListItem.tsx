@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useRef, useCallback } from "react";
 import { Box, Flex, Text, ContextMenu } from "@radix-ui/themes";
 import {
   Edit2,
@@ -65,13 +65,13 @@ export const KeyListItem = memo(function KeyListItem({
     }
   }, [isSelected]);
 
-  const handleCopyName = () => {
+  const handleCopyName = useCallback(() => {
     writeText(item.name);
-  };
+  }, [item.name]);
 
-  const handleCopyJsonData = () => {
+  const handleCopyJsonData = useCallback(() => {
     writeText(JSON.stringify(item.values, null, 2));
-  };
+  }, [item.values]);
 
   useEffect(() => {
     if (!isSelected) return;
@@ -130,6 +130,8 @@ export const KeyListItem = memo(function KeyListItem({
     onPasteJsonData,
     onTranslateDeepL,
     onTranslateGemini,
+    handleCopyName,
+    handleCopyJsonData,
   ]);
 
   const isMac = navigator.userAgent.includes("Mac");
@@ -189,7 +191,7 @@ export const KeyListItem = memo(function KeyListItem({
           <Flex gap="2" align="center">
             <Text
               size="1"
-              color={isSelected ? (store.accentColor as any) : "gray"}
+              color={isSelected ? (store.accentColor as never) : "gray"}
               weight="bold"
               style={{ fontFamily: "monospace", width: "20px" }}
             >

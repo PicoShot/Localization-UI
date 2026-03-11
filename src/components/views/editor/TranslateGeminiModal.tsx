@@ -89,7 +89,7 @@ export function TranslateGeminiModal({
       setSelectedElements(new Set());
       setElementTexts({});
     }
-  }, [open, item]);
+  }, [open, item, availableSourceLocales]);
 
   const toggleElement = (index: number) => {
     setSelectedElements((prev) => {
@@ -282,8 +282,12 @@ export function TranslateGeminiModal({
 
       setKeyValues(keyName, newValues);
       onOpenChange(false);
-    } catch (err: any) {
-      setError(err.message || "An unknown error occurred during translation");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "An unknown error occurred during translation");
+      } else {
+        setError("An unknown error occurred during translation");
+      }
     } finally {
       setIsTranslating(false);
     }
@@ -358,7 +362,7 @@ export function TranslateGeminiModal({
         <Flex direction="column" gap="4">
           <RadioGroup.Root
             value={sourceMode}
-            onValueChange={(val: any) => setSourceMode(val)}
+            onValueChange={(val: "existing" | "custom") => setSourceMode(val)}
             disabled={!hasApiKey || !hasModel || isTranslating}
           >
             <Flex direction="column" gap="3">
