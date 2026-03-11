@@ -4,6 +4,7 @@ import { UnifiedKey } from "@/types/types";
 import { StringKeyEditor } from "./StringKeyEditor";
 import { ArrayKeyEditor } from "./ArrayKeyEditor";
 import { useEditorStore } from "@/stores/editorStore";
+import { useSessionStore } from "@/stores/sessionStore";
 
 interface KeyDetailsPanelProps {
   locales: LocaleData[];
@@ -21,6 +22,7 @@ export function KeyDetailsPanel({
   const clearEmptyArrayElements = useEditorStore(
     (s) => s.clearEmptyArrayElements,
   );
+  const session = useSessionStore();
 
   if (!selectedKey) {
     return (
@@ -35,6 +37,30 @@ export function KeyDetailsPanel({
   }
 
   const keyName = selectedKey.name;
+
+  const handleStringChange = (langCode: string, newValue: string) => {
+    setStringValue(keyName, langCode, newValue);
+    session.sendEditStringValue(keyName, langCode, newValue);
+  };
+
+  const handleArrayElementChange = (
+    langCode: string,
+    index: number,
+    newValue: string,
+  ) => {
+    setArrayElement(keyName, langCode, index, newValue);
+    session.sendEditArrayElement(keyName, langCode, index, newValue);
+  };
+
+  const handleRemoveElement = (index: number) => {
+    removeArrayElement(keyName, index);
+    session.sendRemoveArrayElement(keyName, index);
+  };
+
+  const handleAddElement = () => {
+    addArrayElement(keyName);
+    session.sendAddArrayElement(keyName);
+  };
 
   return (
     <ScrollArea type="auto" style={{ flex: 1 }}>
@@ -52,9 +78,7 @@ export function KeyDetailsPanel({
           <StringKeyEditor
             locales={locales}
             selectedKey={selectedKey}
-            onChange={(langCode, newValue) =>
-              setStringValue(keyName, langCode, newValue)
-            }
+            onChange={handleStringChange}
           />
         )}
 
@@ -62,11 +86,9 @@ export function KeyDetailsPanel({
           <ArrayKeyEditor
             locales={locales}
             selectedKey={selectedKey}
-            onElementChange={(langCode, index, newValue) =>
-              setArrayElement(keyName, langCode, index, newValue)
-            }
-            onRemoveElement={(index) => removeArrayElement(keyName, index)}
-            onAddElement={() => addArrayElement(keyName)}
+            onElementChange={handleArrayElementChange}
+            onRemoveElement={handleRemoveElement}
+            onAddElement={handleAddElement}
             onClearEmpty={() => clearEmptyArrayElements(keyName)}
           />
         )}

@@ -35,6 +35,7 @@ import { ImportJsonModal } from "./ImportJsonModal";
 import { ClearAllDataModal } from "./ClearAllDataModal";
 import { useEditorStore } from "@/stores/editorStore";
 import { useSettingsStore } from "@/stores/settingsStore";
+import { useSessionStore } from "@/stores/sessionStore";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import {
   buildKeyTree,
@@ -57,6 +58,9 @@ export const KeyListSidebar = memo(function KeyListSidebar({
 }: KeyListSidebarProps) {
   const addKey = useEditorStore((s) => s.addKey);
   const store = useSettingsStore();
+  const session = useSessionStore();
+  const sessionUsers = useSessionStore((s) => s.users);
+  const myId = useSessionStore((s) => s.myId);
   const renameKey = useEditorStore((s) => s.renameKey);
   const setKeyValues = useEditorStore((s) => s.setKeyValues);
   const clearKeyValues = useEditorStore((s) => s.clearKeyValues);
@@ -134,8 +138,11 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   }, [keys, searchQuery, showStrings, showArrays, sortByName]);
 
   const handleSelect = useCallback(
-    (name: string) => setSelectedKeyName(name),
-    [setSelectedKeyName],
+    (name: string) => {
+      setSelectedKeyName(name);
+      session.sendSelectKey(name);
+    },
+    [setSelectedKeyName, session],
   );
 
   const tree = useMemo(() => {
@@ -179,8 +186,9 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const handleAddKey = useCallback(
     (newKey: UnifiedKey) => {
       addKey(newKey);
+      session.sendAddKey(newKey);
     },
-    [addKey],
+    [addKey, session],
   );
 
   const handleDeleteRequest = useCallback((name: string) => {
@@ -191,8 +199,9 @@ export const KeyListSidebar = memo(function KeyListSidebar({
     if (!pendingDeleteKey) return;
     setSelectedKeyName(pendingDeleteKey);
     deleteSelectedKey();
+    session.sendDeleteKey(pendingDeleteKey);
     setPendingDeleteKey(null);
-  }, [pendingDeleteKey, setSelectedKeyName, deleteSelectedKey]);
+  }, [pendingDeleteKey, setSelectedKeyName, deleteSelectedKey, session]);
 
   const handleRenameRequest = useCallback((name: string) => {
     setPendingRenameKey(name);
@@ -201,9 +210,10 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const handleConfirmRename = useCallback(
     (oldName: string, newName: string) => {
       renameKey(oldName, newName);
+      session.sendRenameKey(oldName, newName);
       setPendingRenameKey(null);
     },
-    [renameKey],
+    [renameKey, session],
   );
 
   const handleClearRequest = useCallback((name: string) => {
@@ -372,9 +382,10 @@ export const KeyListSidebar = memo(function KeyListSidebar({
       setDragOverKeyName(null);
       if (sourceName && sourceName !== targetName) {
         moveKey(sourceName, targetName);
+        session.sendMoveKey(sourceName, targetName);
       }
     },
-    [moveKey],
+    [moveKey, session],
   );
 
   const handleDragEnd = useCallback(() => {
@@ -623,6 +634,10 @@ export const KeyListSidebar = memo(function KeyListSidebar({
                     onDrop={handleDrop}
                     onDragEnd={handleDragEnd}
                     isDragOver={dragOverKeyName === item.node.key.name}
+                    editingUsers={sessionUsers.filter(
+                      (u) =>
+                        u.id !== myId && u.selectedKey === item.node.key.name,
+                    )}
                   />
                 ),
               )
@@ -646,6 +661,9 @@ export const KeyListSidebar = memo(function KeyListSidebar({
                   onDrop={handleDrop}
                   onDragEnd={handleDragEnd}
                   isDragOver={dragOverKeyName === k.name}
+                  editingUsers={sessionUsers.filter(
+                    (u) => u.id !== myId && u.selectedKey === k.name,
+                  )}
                 />
               ))}
         </Flex>

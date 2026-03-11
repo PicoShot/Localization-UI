@@ -7,17 +7,20 @@ import {
   DoubleArrowRightIcon,
   ExitIcon,
 } from "@radix-ui/react-icons";
+import { Users } from "lucide-react";
 import { useEditorStore } from "@/stores/editorStore";
 import { useSettingsStore } from "@/stores/settingsStore";
+import { useSessionStore } from "@/stores/sessionStore";
 
 interface LeftBarProps {
-  activeTab: "editor" | "settings";
-  setActiveTab: (tab: "editor" | "settings") => void;
+  activeTab: "editor" | "settings" | "sessions";
+  setActiveTab: (tab: "editor" | "settings" | "sessions") => void;
 }
 
 export function LeftBar({ activeTab, setActiveTab }: LeftBarProps) {
   const closeFiles = useEditorStore((s) => s.closeFiles);
   const store = useSettingsStore();
+  const connected = useSessionStore((s) => s.connected);
   const [isCompact, setIsCompact] = useState(true);
 
   const renderWithTooltip = (content: string, children: React.ReactElement) => {
@@ -80,6 +83,43 @@ export function LeftBar({ activeTab, setActiveTab }: LeftBarProps) {
           >
             <Pencil1Icon />
             {!isCompact && <Text size="3">Editor</Text>}
+          </Button>,
+        )}
+
+        {renderWithTooltip(
+          "Sessions",
+          <Button
+            size="3"
+            variant="outline"
+            color={
+              activeTab === "sessions" ? (store.accentColor as never) : "gray"
+            }
+            style={{
+              justifyContent: isCompact ? "center" : "flex-start",
+              cursor: "pointer",
+              width: "100%",
+              padding: isCompact ? 0 : undefined,
+              position: "relative",
+            }}
+            onClick={() => setActiveTab("sessions")}
+          >
+            <Box style={{ position: "relative", display: "inline-flex" }}>
+              <Users size={15} />
+              {connected && (
+                <Box
+                  style={{
+                    position: "absolute",
+                    top: -2,
+                    right: -2,
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    backgroundColor: "var(--green-9)",
+                  }}
+                />
+              )}
+            </Box>
+            {!isCompact && <Text size="3">Sessions</Text>}
           </Button>,
         )}
 

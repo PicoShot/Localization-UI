@@ -1,5 +1,5 @@
 import { memo, useEffect, useRef, useCallback } from "react";
-import { Box, Flex, Text, ContextMenu } from "@radix-ui/themes";
+import { Box, Flex, Text, ContextMenu, Tooltip } from "@radix-ui/themes";
 import {
   Edit2,
   Trash2,
@@ -11,6 +11,7 @@ import {
 import { UnifiedKey } from "@/types/types";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { useSettingsStore } from "@/stores/settingsStore";
+import type { SessionUser } from "@/lib/protocol";
 
 interface KeyListItemProps {
   item: UnifiedKey;
@@ -32,6 +33,7 @@ interface KeyListItemProps {
   onDrop?: (e: React.DragEvent, name: string) => void;
   onDragEnd?: () => void;
   isDragOver?: boolean;
+  editingUsers?: SessionUser[];
 }
 
 export const KeyListItem = memo(function KeyListItem({
@@ -54,6 +56,7 @@ export const KeyListItem = memo(function KeyListItem({
   onDrop,
   onDragEnd,
   isDragOver = false,
+  editingUsers = [],
 }: KeyListItemProps) {
   const store = useSettingsStore();
 
@@ -208,6 +211,22 @@ export const KeyListItem = memo(function KeyListItem({
             >
               {displayName ?? item.name}
             </Text>
+            {editingUsers.length > 0 && (
+              <Flex gap="1" align="center" style={{ flexShrink: 0 }}>
+                {editingUsers.map((u) => (
+                  <Tooltip key={u.id} content={u.name}>
+                    <Box
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        backgroundColor: u.color,
+                      }}
+                    />
+                  </Tooltip>
+                ))}
+              </Flex>
+            )}
           </Flex>
         </Box>
       </ContextMenu.Trigger>

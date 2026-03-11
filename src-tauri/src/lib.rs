@@ -8,17 +8,17 @@ fn greet(name: &str) -> String {
 pub fn run() {
     let mut builder = tauri::Builder::default();
 
-    #[cfg(desktop)]
-    {
-        builder = builder.plugin(tauri_plugin_single_instance::init(|app, _, _| {
-            use tauri::Manager;
-
-            let _ = app
-                .get_webview_window("main")
-                .expect("no main window")
-                .set_focus();
-        }));
-    }
+    // #[cfg(desktop)]
+    // {
+    //     builder = builder.plugin(tauri_plugin_single_instance::init(|app, _, _| {
+    //         use tauri::Manager;
+    //
+    //         let _ = app
+    //             .get_webview_window("main")
+    //             .expect("no main window")
+    //             .set_focus();
+    //     }));
+    // }
 
     builder = builder.plugin(tauri_plugin_keyring::init());
     builder = builder.plugin(tauri_plugin_websocket::init());
