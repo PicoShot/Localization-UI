@@ -9,12 +9,14 @@ interface StringKeyEditorProps {
   locales: LocaleData[];
   selectedKey: UnifiedKey;
   onChange: (langCode: string, newValue: string) => void;
+  readOnlyLanguages?: Set<string>;
 }
 
 export function StringKeyEditor({
   locales,
   selectedKey,
   onChange,
+  readOnlyLanguages,
 }: StringKeyEditorProps) {
   const [editingLang, setEditingLang] = useState<string | null>(null);
 
@@ -35,11 +37,19 @@ export function StringKeyEditor({
           <TextField.Root
             value={(selectedKey.values[locale.languageCode] as string) || ""}
             onChange={(e) => onChange(locale.languageCode, e.target.value)}
-            onDoubleClick={() => setEditingLang(locale.languageCode)}
+            onDoubleClick={() => {
+              if (!readOnlyLanguages?.has(locale.languageCode)) {
+                setEditingLang(locale.languageCode);
+              }
+            }}
+            readOnly={readOnlyLanguages?.has(locale.languageCode)}
             placeholder={`Value in ${GetLanguageName(locale.languageCode)}...`}
             style={{
               fontFamily: "inherit",
-              cursor: "text",
+              cursor: readOnlyLanguages?.has(locale.languageCode)
+                ? "not-allowed"
+                : "text",
+              opacity: readOnlyLanguages?.has(locale.languageCode) ? 0.6 : 1,
             }}
           />
         </Box>

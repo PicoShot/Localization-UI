@@ -11,20 +11,20 @@ import {
 import { DragDropZone } from "@/components/DragDropZone";
 import { useEditorStore } from "@/stores/editorStore";
 import { useSessionStore } from "@/stores/sessionStore";
+import { useSettingsStore } from "@/stores/settingsStore";
 
 export function MainPage() {
   const loadError = useEditorStore((s) => s.loadError);
   const sessionError = useSessionStore((s) => s.error);
   const connecting = useSessionStore((s) => s.connecting);
   const joinSession = useSessionStore((s) => s.joinSession);
+  const settings = useSettingsStore();
 
   const [joinCode, setJoinCode] = useState("");
-  const [joinName, setJoinName] = useState("User");
-  const [joinServerUrl, setJoinServerUrl] = useState("ws://localhost:9001/ws");
 
   const handleJoin = () => {
-    if (!joinCode.trim() || !joinName.trim()) return;
-    joinSession(joinServerUrl, joinCode, joinName);
+    if (!joinCode.trim() || !settings.sessionUserName.trim()) return;
+    joinSession(settings.sessionServerUrl, joinCode, settings.sessionUserName);
   };
 
   return (
@@ -49,7 +49,7 @@ export function MainPage() {
         </Text>
       </Flex>
 
-      <div style={{ width: "100%", minHeight: "250px" }}>
+      <div style={{ width: "100%" }}>
         <DragDropZone />
       </div>
 
@@ -87,18 +87,6 @@ export function MainPage() {
 
           <Flex direction="column" gap="1">
             <Text size="1" color="gray">
-              Server URL
-            </Text>
-            <TextField.Root
-              size="2"
-              value={joinServerUrl}
-              onChange={(e) => setJoinServerUrl(e.target.value)}
-              placeholder="ws://localhost:9001/ws"
-            />
-          </Flex>
-
-          <Flex direction="column" gap="1">
-            <Text size="1" color="gray">
               Session Code
             </Text>
             <TextField.Root
@@ -130,8 +118,8 @@ export function MainPage() {
             </Text>
             <TextField.Root
               size="2"
-              value={joinName}
-              onChange={(e) => setJoinName(e.target.value)}
+              value={settings.sessionUserName}
+              onChange={(e) => settings.setSessionUserName(e.target.value)}
               placeholder="Your name"
             />
           </Flex>
@@ -139,7 +127,11 @@ export function MainPage() {
           <Button
             size="3"
             onClick={handleJoin}
-            disabled={joinCode.length !== 6 || !joinName.trim() || connecting}
+            disabled={
+              joinCode.length !== 6 ||
+              !settings.sessionUserName.trim() ||
+              connecting
+            }
             style={{ cursor: "pointer" }}
           >
             {connecting ? "Connecting..." : "Join Session"}

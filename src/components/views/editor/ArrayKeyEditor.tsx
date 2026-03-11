@@ -29,6 +29,7 @@ interface ArrayKeyEditorProps {
   onRemoveElement: (index: number) => void;
   onAddElement: () => void;
   onClearEmpty: () => void;
+  readOnlyLanguages?: Set<string>;
 }
 
 export function ArrayKeyEditor({
@@ -38,6 +39,7 @@ export function ArrayKeyEditor({
   onRemoveElement,
   onAddElement,
   onClearEmpty,
+  readOnlyLanguages,
 }: ArrayKeyEditorProps) {
   const [editingCell, setEditingCell] = useState<{
     langCode: string;
@@ -154,14 +156,24 @@ export function ArrayKeyEditor({
                             e.target.value,
                           )
                         }
-                        onDoubleClick={() =>
-                          setEditingCell({
-                            langCode: locale.languageCode,
-                            index: i,
-                          })
-                        }
+                        onDoubleClick={() => {
+                          if (!readOnlyLanguages?.has(locale.languageCode)) {
+                            setEditingCell({
+                              langCode: locale.languageCode,
+                              index: i,
+                            });
+                          }
+                        }}
+                        readOnly={readOnlyLanguages?.has(locale.languageCode)}
                         placeholder={`Element ${i} in ${GetLanguageName(locale.languageCode)}`}
-                        style={{ cursor: "text" }}
+                        style={{
+                          cursor: readOnlyLanguages?.has(locale.languageCode)
+                            ? "not-allowed"
+                            : "text",
+                          opacity: readOnlyLanguages?.has(locale.languageCode)
+                            ? 0.6
+                            : 1,
+                        }}
                       />
                     </Box>
                   );

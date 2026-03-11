@@ -7,6 +7,7 @@ import {
   loadApiKey,
   clearApiKey as removeApiKey,
 } from "../lib/keyring";
+import { hostname } from "@tauri-apps/plugin-os";
 
 interface SettingsState {
   deeplApiMode: DeeplApiMode;
@@ -26,6 +27,9 @@ interface SettingsState {
   keyListSortByName: boolean;
   keyListGroupByPrefix: boolean;
 
+  sessionUserName: string;
+  sessionServerUrl: string;
+
   loadSettings: () => Promise<void>;
   setDeeplApiMode: (mode: DeeplApiMode) => void;
   setDeeplContext: (context: string) => void;
@@ -43,6 +47,9 @@ interface SettingsState {
   setKeyListShowArrays: (show: boolean) => void;
   setKeyListSortByName: (sort: boolean) => void;
   setKeyListGroupByPrefix: (group: boolean) => void;
+
+  setSessionUserName: (name: string) => void;
+  setSessionServerUrl: (url: string) => void;
 
   saveSettings: () => void;
 }
@@ -65,6 +72,9 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   keyListSortByName: false,
   keyListGroupByPrefix: false,
 
+  sessionUserName: "",
+  sessionServerUrl: "ws://localhost:9001/ws",
+
   loadSettings: async () => {
     try {
       const stored = localStorage.getItem("settings");
@@ -82,10 +92,25 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           keyListShowArrays: parsed.keyListShowArrays ?? true,
           keyListSortByName: parsed.keyListSortByName ?? false,
           keyListGroupByPrefix: parsed.keyListGroupByPrefix ?? false,
+          sessionUserName: parsed.sessionUserName ?? "",
+          sessionServerUrl: parsed.sessionServerUrl ?? "ws://localhost:9001/ws",
         });
       }
     } catch (e) {
       console.error("Failed to parse settings from localStorage", e);
+    }
+
+    const state = get();
+    if (!state.sessionUserName) {
+      try {
+        const host = await hostname();
+        if (host) {
+          set({ sessionUserName: host });
+          get().saveSettings();
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     const deeplKey = await loadApiKey(KeyringType.DEEPL);
@@ -174,6 +199,16 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     get().saveSettings();
   },
 
+  setSessionUserName: (name) => {
+    set({ sessionUserName: name });
+    get().saveSettings();
+  },
+
+  setSessionServerUrl: (url) => {
+    set({ sessionServerUrl: url });
+    get().saveSettings();
+  },
+
   saveSettings: () => {
     const state = get();
     localStorage.setItem(
@@ -190,6 +225,8 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         keyListShowArrays: state.keyListShowArrays,
         keyListSortByName: state.keyListSortByName,
         keyListGroupByPrefix: state.keyListGroupByPrefix,
+        sessionUserName: state.sessionUserName,
+        sessionServerUrl: state.sessionServerUrl,
       }),
     );
   },

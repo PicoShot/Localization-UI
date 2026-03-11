@@ -1,6 +1,5 @@
 export interface SessionPermissions {
-  allowWrite: boolean;
-  allowedLanguages: string[] | "all";
+  languagePermissions: Record<string, "read" | "write"> | "all";
 }
 
 export interface SessionUser {
@@ -98,4 +97,20 @@ export interface SerializedLocale {
   version: number;
   languageCode: string;
   translations: Record<string, string | string[] | null | undefined>;
+}
+
+export function canWriteLanguage(
+  permissions: SessionPermissions,
+  langCode: string,
+): boolean {
+  if (permissions.languagePermissions === "all") return true;
+  return permissions.languagePermissions[langCode] === "write";
+}
+
+export function canAccessLanguage(
+  permissions: SessionPermissions,
+  langCode: string,
+): boolean {
+  if (permissions.languagePermissions === "all") return true;
+  return langCode in permissions.languagePermissions;
 }

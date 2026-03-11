@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Flex, Box, Text, Heading, ScrollArea } from "@radix-ui/themes";
 import { LocaleData } from "@/lib/bloc";
 import { UnifiedKey } from "@/types/types";
@@ -23,6 +24,22 @@ export function KeyDetailsPanel({
     (s) => s.clearEmptyArrayElements,
   );
   const session = useSessionStore();
+  const permissions = useSessionStore((s) => s.permissions);
+  const connected = useSessionStore((s) => s.connected);
+  const isOwner = useSessionStore((s) => s.isOwner);
+
+  const readOnlyLanguages = useMemo(() => {
+    const set = new Set<string>();
+    if (!connected || isOwner || !permissions) return set;
+    const perms = permissions.languagePermissions;
+    if (perms === "all") return set;
+    for (const locale of locales) {
+      if (perms[locale.languageCode] !== "write") {
+        set.add(locale.languageCode);
+      }
+    }
+    return set;
+  }, [connected, isOwner, permissions, locales]);
 
   if (!selectedKey) {
     return (
@@ -39,6 +56,7 @@ export function KeyDetailsPanel({
   const keyName = selectedKey.name;
 
   const handleStringChange = (langCode: string, newValue: string) => {
+    if (readOnlyLanguages.has(langCode)) return;
     setStringValue(keyName, langCode, newValue);
     session.sendEditStringValue(keyName, langCode, newValue);
   };
@@ -48,6 +66,7 @@ export function KeyDetailsPanel({
     index: number,
     newValue: string,
   ) => {
+    if (readOnlyLanguages.has(langCode)) return;
     setArrayElement(keyName, langCode, index, newValue);
     session.sendEditArrayElement(keyName, langCode, index, newValue);
   };
@@ -79,6 +98,7 @@ export function KeyDetailsPanel({
             locales={locales}
             selectedKey={selectedKey}
             onChange={handleStringChange}
+            readOnlyLanguages={readOnlyLanguages}
           />
         )}
 
@@ -90,6 +110,7 @@ export function KeyDetailsPanel({
             onRemoveElement={handleRemoveElement}
             onAddElement={handleAddElement}
             onClearEmpty={() => clearEmptyArrayElements(keyName)}
+            readOnlyLanguages={readOnlyLanguages}
           />
         )}
       </Flex>
