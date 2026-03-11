@@ -151,12 +151,16 @@ export const KeyListItem = memo(function KeyListItem({
             backgroundColor: isDragOver
               ? "var(--indigo-4)"
               : isSelected
-                ? "var(--green-4)"
+                ? "var(--indigo-4)"
                 : "transparent",
-            color: isSelected && !isDragOver ? "var(--green-11)" : "inherit",
+            color: isSelected && !isDragOver ? "var(--indigo-11)" : "inherit",
             transition: "background-color 0.1s ease",
-            borderTop: isDragOver ? "2px solid var(--indigo-8)" : "2px solid transparent",
-            borderBottom: isDragOver ? "2px solid transparent" : "2px solid transparent", // keeping space
+            borderTop: isDragOver
+              ? "2px solid var(--indigo-8)"
+              : "2px solid transparent",
+            borderBottom: isDragOver
+              ? "2px solid transparent"
+              : "2px solid transparent",
             boxSizing: "border-box",
           }}
           onMouseEnter={(e) => {
@@ -173,7 +177,7 @@ export const KeyListItem = memo(function KeyListItem({
           <Flex gap="2" align="center">
             <Text
               size="1"
-              color={isSelected ? "green" : "gray"}
+              color={isSelected ? "indigo" : "gray"}
               weight="bold"
               style={{ fontFamily: "monospace", width: "20px" }}
             >
