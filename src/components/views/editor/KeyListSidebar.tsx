@@ -21,6 +21,7 @@ import { TranslateGeminiModal } from "./TranslateGeminiModal";
 import { RenameGroupModal } from "./RenameGroupModal";
 import { DeleteGroupModal } from "./DeleteGroupModal";
 import { ClearGroupValuesModal } from "./ClearGroupValuesModal";
+import { PasteJsonDataModal } from "./PasteJsonDataModal";
 import { useEditorStore } from "@/stores/editorStore";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
@@ -88,6 +89,10 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const [pendingClearGroup, setPendingClearGroup] = useState<string | null>(
     null,
   );
+  const [pendingPasteJsonData, setPendingPasteJsonData] = useState<{
+    keyName: string;
+    values: Record<string, string | string[]>;
+  } | null>(null);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
     () => new Set(),
   );
@@ -267,13 +272,53 @@ export const KeyListSidebar = memo(function KeyListSidebar({
           }
         }
         if (Object.keys(values).length === 0) return;
-        setKeyValues(keyName, values);
+        setPendingPasteJsonData({ keyName, values });
       } catch {
         return;
       }
     },
-    [setKeyValues],
+    [],
   );
+
+  const handleConfirmReplaceJsonData = useCallback(() => {
+    if (!pendingPasteJsonData) return;
+    const { keyName, values } = pendingPasteJsonData;
+    clearKeyValues(keyName);
+    setKeyValues(keyName, values);
+    setPendingPasteJsonData(null);
+  }, [pendingPasteJsonData, clearKeyValues, setKeyValues]);
+
+  const handleConfirmMergeJsonData = useCallback(() => {
+    if (!pendingPasteJsonData) return;
+    const { keyName, values } = pendingPasteJsonData;
+    
+    const existingKey = keys.find((k) => k.name === keyName);
+    if (!existingKey) {
+      setKeyValues(keyName, values);
+      setPendingPasteJsonData(null);
+      return;
+    }
+
+    const mergedValues: Record<string, string | string[]> = {};
+    for (const [lang, val] of Object.entries(values)) {
+      const existingVal = existingKey.values[lang];
+      const isExistingEmpty =
+        !existingVal ||
+        (typeof existingVal === "string" && existingVal.trim() === "") ||
+        (Array.isArray(existingVal) && existingVal.length === 0) ||
+        (Array.isArray(existingVal) &&
+          existingVal.every((v) => typeof v !== "string" || v.trim() === ""));
+
+      if (isExistingEmpty) {
+        mergedValues[lang] = val;
+      }
+    }
+
+    if (Object.keys(mergedValues).length > 0) {
+      setKeyValues(keyName, mergedValues);
+    }
+    setPendingPasteJsonData(null);
+  }, [pendingPasteJsonData, keys, setKeyValues]);
 
   const handleTranslateDeepLRequest = useCallback((name: string) => {
     setPendingTranslateDeepLKey(name);
@@ -655,6 +700,16 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         }}
         groupPrefix={pendingClearGroup ?? ""}
         onConfirm={handleConfirmClearGroup}
+      />
+
+      <PasteJsonDataModal
+        open={pendingPasteJsonData !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingPasteJsonData(null);
+        }}
+        keyName={pendingPasteJsonData?.keyName ?? ""}
+        onReplace={handleConfirmReplaceJsonData}
+        onMerge={handleConfirmMergeJsonData}
       />
     </Flex>
   );
