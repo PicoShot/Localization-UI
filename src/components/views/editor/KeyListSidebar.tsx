@@ -53,10 +53,19 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const deleteGroup = useEditorStore((s) => s.deleteGroup);
   const clearGroupValuesStore = useEditorStore((s) => s.clearGroupValues);
   const moveKey = useEditorStore((s) => s.moveKey);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showStrings, setShowStrings] = useState(true);
-  const [showArrays, setShowArrays] = useState(true);
-  const [sortByName, setSortByName] = useState(false);
+
+  const searchQuery = store.keyListSearchQuery;
+  const showStrings = store.keyListShowStrings;
+  const showArrays = store.keyListShowArrays;
+  const sortByName = store.keyListSortByName;
+  const groupByPrefix = store.keyListGroupByPrefix;
+
+  const setSearchQuery = store.setKeyListSearchQuery;
+  const setShowStrings = store.setKeyListShowStrings;
+  const setShowArrays = store.setKeyListShowArrays;
+  const setSortByName = store.setKeyListSortByName;
+  const setGroupByPrefix = store.setKeyListGroupByPrefix;
+
   const [showAddKey, setShowAddKey] = useState(false);
   const [pendingDeleteKey, setPendingDeleteKey] = useState<string | null>(null);
   const [pendingRenameKey, setPendingRenameKey] = useState<string | null>(null);
@@ -79,7 +88,6 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const [pendingClearGroup, setPendingClearGroup] = useState<string | null>(
     null,
   );
-  const [groupByPrefix, setGroupByPrefix] = useState(false);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
     () => new Set(),
   );

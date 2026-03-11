@@ -20,6 +20,12 @@ interface SettingsState {
   accentColor: string;
   theme: "light" | "dark";
 
+  keyListSearchQuery: string;
+  keyListShowStrings: boolean;
+  keyListShowArrays: boolean;
+  keyListSortByName: boolean;
+  keyListGroupByPrefix: boolean;
+
   loadSettings: () => Promise<void>;
   setDeeplApiMode: (mode: DeeplApiMode) => void;
   setDeeplContext: (context: string) => void;
@@ -31,6 +37,13 @@ interface SettingsState {
   clearGeminiApiKey: () => Promise<void>;
   setAccentColor: (color: string) => void;
   setTheme: (theme: "light" | "dark") => void;
+
+  setKeyListSearchQuery: (query: string) => void;
+  setKeyListShowStrings: (show: boolean) => void;
+  setKeyListShowArrays: (show: boolean) => void;
+  setKeyListSortByName: (sort: boolean) => void;
+  setKeyListGroupByPrefix: (group: boolean) => void;
+
   saveSettings: () => void;
 }
 
@@ -46,6 +59,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   accentColor: "indigo",
   theme: "dark",
 
+  keyListSearchQuery: "",
+  keyListShowStrings: true,
+  keyListShowArrays: true,
+  keyListSortByName: false,
+  keyListGroupByPrefix: false,
+
   loadSettings: async () => {
     try {
       const stored = localStorage.getItem("settings");
@@ -58,6 +77,11 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           geminiCustomModel: parsed.geminiCustomModel ?? "",
           accentColor: parsed.accentColor ?? "indigo",
           theme: parsed.theme ?? "dark",
+          keyListSearchQuery: parsed.keyListSearchQuery ?? "",
+          keyListShowStrings: parsed.keyListShowStrings ?? true,
+          keyListShowArrays: parsed.keyListShowArrays ?? true,
+          keyListSortByName: parsed.keyListSortByName ?? false,
+          keyListGroupByPrefix: parsed.keyListGroupByPrefix ?? false,
         });
       }
     } catch (e) {
@@ -125,6 +149,31 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     get().saveSettings();
   },
 
+  setKeyListSearchQuery: (query) => {
+    set({ keyListSearchQuery: query });
+    get().saveSettings();
+  },
+
+  setKeyListShowStrings: (show) => {
+    set({ keyListShowStrings: show });
+    get().saveSettings();
+  },
+
+  setKeyListShowArrays: (show) => {
+    set({ keyListShowArrays: show });
+    get().saveSettings();
+  },
+
+  setKeyListSortByName: (sort) => {
+    set({ keyListSortByName: sort });
+    get().saveSettings();
+  },
+
+  setKeyListGroupByPrefix: (group) => {
+    set({ keyListGroupByPrefix: group });
+    get().saveSettings();
+  },
+
   saveSettings: () => {
     const state = get();
     localStorage.setItem(
@@ -136,6 +185,11 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         geminiCustomModel: state.geminiCustomModel,
         accentColor: state.accentColor,
         theme: state.theme,
+        keyListSearchQuery: state.keyListSearchQuery,
+        keyListShowStrings: state.keyListShowStrings,
+        keyListShowArrays: state.keyListShowArrays,
+        keyListSortByName: state.keyListSortByName,
+        keyListGroupByPrefix: state.keyListGroupByPrefix,
       }),
     );
   },
