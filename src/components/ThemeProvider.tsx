@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import { Theme } from "@radix-ui/themes";
 import { useSettingsStore } from "../stores/settingsStore";
 import {
@@ -14,13 +14,11 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<TauriTheme>("dark");
   const store = useSettingsStore();
-
-  //const systemTheme = await getCurrentWindow().theme();
+  const theme = store.theme;
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+    store.setTheme(theme === "dark" ? "light" : "dark");
   };
 
   useEffect(() => {

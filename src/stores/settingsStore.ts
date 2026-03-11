@@ -18,6 +18,7 @@ interface SettingsState {
   geminiApiKey: string;
 
   accentColor: string;
+  theme: "light" | "dark";
 
   loadSettings: () => Promise<void>;
   setDeeplApiMode: (mode: DeeplApiMode) => void;
@@ -29,6 +30,7 @@ interface SettingsState {
   setGeminiApiKey: (key: string) => Promise<void>;
   clearGeminiApiKey: () => Promise<void>;
   setAccentColor: (color: string) => void;
+  setTheme: (theme: "light" | "dark") => void;
   saveSettings: () => void;
 }
 
@@ -42,6 +44,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   geminiApiKey: "",
 
   accentColor: "indigo",
+  theme: "dark",
 
   loadSettings: async () => {
     try {
@@ -54,6 +57,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           geminiModel: parsed.geminiModel ?? "gemini-2.0-flash",
           geminiCustomModel: parsed.geminiCustomModel ?? "",
           accentColor: parsed.accentColor ?? "indigo",
+          theme: parsed.theme ?? "dark",
         });
       }
     } catch (e) {
@@ -116,6 +120,11 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     get().saveSettings();
   },
 
+  setTheme: (theme) => {
+    set({ theme });
+    get().saveSettings();
+  },
+
   saveSettings: () => {
     const state = get();
     localStorage.setItem(
@@ -126,6 +135,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         geminiModel: state.geminiModel,
         geminiCustomModel: state.geminiCustomModel,
         accentColor: state.accentColor,
+        theme: state.theme,
       }),
     );
   },
