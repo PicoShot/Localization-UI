@@ -50,24 +50,38 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const renameGroup = useEditorStore((s) => s.renameGroup);
   const deleteGroup = useEditorStore((s) => s.deleteGroup);
   const clearGroupValuesStore = useEditorStore((s) => s.clearGroupValues);
+  const moveKey = useEditorStore((s) => s.moveKey);
   const [searchQuery, setSearchQuery] = useState("");
   const [showStrings, setShowStrings] = useState(true);
   const [showArrays, setShowArrays] = useState(true);
-  const [sortByName, setSortByName] = useState(true);
+  const [sortByName, setSortByName] = useState(false);
   const [showAddKey, setShowAddKey] = useState(false);
   const [pendingDeleteKey, setPendingDeleteKey] = useState<string | null>(null);
   const [pendingRenameKey, setPendingRenameKey] = useState<string | null>(null);
   const [pendingClearKey, setPendingClearKey] = useState<string | null>(null);
-  const [pendingTranslateDeepLKey, setPendingTranslateDeepLKey] = useState<string | null>(null);
-  const [pendingTranslateGeminiKey, setPendingTranslateGeminiKey] = useState<string | null>(null);
-  const [pendingAddGroupPrefix, setPendingAddGroupPrefix] = useState<string | null>(null);
-  const [pendingDeleteGroup, setPendingDeleteGroup] = useState<string | null>(null);
-  const [pendingRenameGroup, setPendingRenameGroup] = useState<string | null>(null);
-  const [pendingClearGroup, setPendingClearGroup] = useState<string | null>(null);
+  const [pendingTranslateDeepLKey, setPendingTranslateDeepLKey] = useState<
+    string | null
+  >(null);
+  const [pendingTranslateGeminiKey, setPendingTranslateGeminiKey] = useState<
+    string | null
+  >(null);
+  const [pendingAddGroupPrefix, setPendingAddGroupPrefix] = useState<
+    string | null
+  >(null);
+  const [pendingDeleteGroup, setPendingDeleteGroup] = useState<string | null>(
+    null,
+  );
+  const [pendingRenameGroup, setPendingRenameGroup] = useState<string | null>(
+    null,
+  );
+  const [pendingClearGroup, setPendingClearGroup] = useState<string | null>(
+    null,
+  );
   const [groupByPrefix, setGroupByPrefix] = useState(false);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
     () => new Set(),
   );
+  const [dragOverKeyName, setDragOverKeyName] = useState<string | null>(null);
 
   const filteredKeys = useMemo(() => {
     let result = keys.filter((k) => {
@@ -181,10 +195,13 @@ export const KeyListSidebar = memo(function KeyListSidebar({
     setPendingRenameGroup(prefix);
   }, []);
 
-  const handleConfirmRenameGroup = useCallback((oldPrefix: string, newPrefix: string) => {
-    renameGroup(oldPrefix, newPrefix);
-    setPendingRenameGroup(null);
-  }, [renameGroup]);
+  const handleConfirmRenameGroup = useCallback(
+    (oldPrefix: string, newPrefix: string) => {
+      renameGroup(oldPrefix, newPrefix);
+      setPendingRenameGroup(null);
+    },
+    [renameGroup],
+  );
 
   const handleDeleteGroupRequest = useCallback((prefix: string) => {
     setPendingDeleteGroup(prefix);
@@ -222,7 +239,12 @@ export const KeyListSidebar = memo(function KeyListSidebar({
       const text = await readText();
       try {
         const parsed = JSON.parse(text);
-        if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return;
+        if (
+          typeof parsed !== "object" ||
+          parsed === null ||
+          Array.isArray(parsed)
+        )
+          return;
         const values: Record<string, string | string[]> = {};
         for (const [lang, val] of Object.entries(parsed)) {
           if (typeof val === "string") {
@@ -249,7 +271,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
 
   const pendingTranslateItem = useMemo(() => {
     if (!pendingTranslateDeepLKey) return null;
-    return keys.find(k => k.name === pendingTranslateDeepLKey) || null;
+    return keys.find((k) => k.name === pendingTranslateDeepLKey) || null;
   }, [pendingTranslateDeepLKey, keys]);
 
   const handleTranslateGeminiRequest = useCallback((name: string) => {
@@ -258,10 +280,40 @@ export const KeyListSidebar = memo(function KeyListSidebar({
 
   const pendingTranslateGeminiItem = useMemo(() => {
     if (!pendingTranslateGeminiKey) return null;
-    return keys.find(k => k.name === pendingTranslateGeminiKey) || null;
+    return keys.find((k) => k.name === pendingTranslateGeminiKey) || null;
   }, [pendingTranslateGeminiKey, keys]);
 
-  const localeCodes = useEditorStore((s) => s.locales).map(l => l.languageCode);
+  const handleDragStart = useCallback((e: React.DragEvent, name: string) => {
+    e.dataTransfer.setData("text/plain", name);
+    e.dataTransfer.effectAllowed = "move";
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent, name: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverKeyName(name);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverKeyName(null);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent, targetName: string) => {
+    e.preventDefault();
+    const sourceName = e.dataTransfer.getData("text/plain");
+    setDragOverKeyName(null);
+    if (sourceName && sourceName !== targetName) {
+      moveKey(sourceName, targetName);
+    }
+  }, [moveKey]);
+
+  const handleDragEnd = useCallback(() => {
+    setDragOverKeyName(null);
+  }, []);
+
+  const localeCodes = useEditorStore((s) => s.locales).map(
+    (l) => l.languageCode,
+  );
 
   return (
     <Flex
@@ -409,6 +461,13 @@ export const KeyListSidebar = memo(function KeyListSidebar({
                     onTranslateGemini={handleTranslateGeminiRequest}
                     displayName={item.node.label}
                     depth={item.depth}
+                    isDraggable={!sortByName && !groupByPrefix}
+                    onDragStart={handleDragStart}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onDragEnd={handleDragEnd}
+                    isDragOver={dragOverKeyName === item.node.key.name}
                   />
                 ),
               )
@@ -425,6 +484,13 @@ export const KeyListSidebar = memo(function KeyListSidebar({
                   onPasteJsonData={handlePasteJsonData}
                   onTranslateDeepL={handleTranslateDeepLRequest}
                   onTranslateGemini={handleTranslateGeminiRequest}
+                  isDraggable={!sortByName && !groupByPrefix}
+                  onDragStart={handleDragStart}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onDragEnd={handleDragEnd}
+                  isDragOver={dragOverKeyName === k.name}
                 />
               ))}
         </Flex>
@@ -443,7 +509,9 @@ export const KeyListSidebar = memo(function KeyListSidebar({
 
       <TranslateDeeplModal
         open={pendingTranslateDeepLKey !== null}
-        onOpenChange={(open) => { if (!open) setPendingTranslateDeepLKey(null); }}
+        onOpenChange={(open) => {
+          if (!open) setPendingTranslateDeepLKey(null);
+        }}
         keyName={pendingTranslateDeepLKey ?? ""}
         item={pendingTranslateItem}
         localeCodes={localeCodes}
@@ -451,7 +519,9 @@ export const KeyListSidebar = memo(function KeyListSidebar({
 
       <TranslateGeminiModal
         open={pendingTranslateGeminiKey !== null}
-        onOpenChange={(open) => { if (!open) setPendingTranslateGeminiKey(null); }}
+        onOpenChange={(open) => {
+          if (!open) setPendingTranslateGeminiKey(null);
+        }}
         keyName={pendingTranslateGeminiKey ?? ""}
         item={pendingTranslateGeminiItem}
         localeCodes={localeCodes}
@@ -459,14 +529,18 @@ export const KeyListSidebar = memo(function KeyListSidebar({
 
       <DeleteKeyModal
         open={pendingDeleteKey !== null}
-        onOpenChange={(open) => { if (!open) setPendingDeleteKey(null); }}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteKey(null);
+        }}
         keyName={pendingDeleteKey ?? ""}
         onConfirm={handleConfirmDelete}
       />
 
       <RenameKeyModal
         open={pendingRenameKey !== null}
-        onOpenChange={(open) => { if (!open) setPendingRenameKey(null); }}
+        onOpenChange={(open) => {
+          if (!open) setPendingRenameKey(null);
+        }}
         currentName={pendingRenameKey ?? ""}
         existingKeys={keys}
         onRename={handleConfirmRename}
@@ -474,28 +548,36 @@ export const KeyListSidebar = memo(function KeyListSidebar({
 
       <ClearValuesModal
         open={pendingClearKey !== null}
-        onOpenChange={(open) => { if (!open) setPendingClearKey(null); }}
+        onOpenChange={(open) => {
+          if (!open) setPendingClearKey(null);
+        }}
         keyName={pendingClearKey ?? ""}
         onConfirm={handleConfirmClear}
       />
 
       <RenameGroupModal
         open={pendingRenameGroup !== null}
-        onOpenChange={(open) => { if (!open) setPendingRenameGroup(null); }}
+        onOpenChange={(open) => {
+          if (!open) setPendingRenameGroup(null);
+        }}
         currentPrefix={pendingRenameGroup ?? ""}
         onRename={handleConfirmRenameGroup}
       />
 
       <DeleteGroupModal
         open={pendingDeleteGroup !== null}
-        onOpenChange={(open) => { if (!open) setPendingDeleteGroup(null); }}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteGroup(null);
+        }}
         groupPrefix={pendingDeleteGroup ?? ""}
         onConfirm={handleConfirmDeleteGroup}
       />
 
       <ClearGroupValuesModal
         open={pendingClearGroup !== null}
-        onOpenChange={(open) => { if (!open) setPendingClearGroup(null); }}
+        onOpenChange={(open) => {
+          if (!open) setPendingClearGroup(null);
+        }}
         groupPrefix={pendingClearGroup ?? ""}
         onConfirm={handleConfirmClearGroup}
       />

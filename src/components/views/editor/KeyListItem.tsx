@@ -24,6 +24,13 @@ interface KeyListItemProps {
   onTranslateGemini: (name: string) => void;
   displayName?: string;
   depth?: number;
+  isDraggable?: boolean;
+  onDragStart?: (e: React.DragEvent, name: string) => void;
+  onDragOver?: (e: React.DragEvent, name: string) => void;
+  onDragLeave?: () => void;
+  onDrop?: (e: React.DragEvent, name: string) => void;
+  onDragEnd?: () => void;
+  isDragOver?: boolean;
 }
 
 export const KeyListItem = memo(function KeyListItem({
@@ -39,6 +46,13 @@ export const KeyListItem = memo(function KeyListItem({
   onTranslateGemini,
   displayName,
   depth = 0,
+  isDraggable = false,
+  onDragStart,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onDragEnd,
+  isDragOver = false,
 }: KeyListItemProps) {
   const handleCopyName = () => {
     writeText(item.name);
@@ -114,23 +128,44 @@ export const KeyListItem = memo(function KeyListItem({
     <ContextMenu.Root>
       <ContextMenu.Trigger>
         <Box
+          draggable={isDraggable}
+          onDragStart={(e) => onDragStart?.(e, item.name)}
+          onDragOver={(e) => {
+            if (isDraggable) onDragOver?.(e, item.name);
+          }}
+          onDragLeave={() => {
+            if (isDraggable) onDragLeave?.();
+          }}
+          onDrop={(e) => {
+            if (isDraggable) onDrop?.(e, item.name);
+          }}
+          onDragEnd={() => {
+            if (isDraggable) onDragEnd?.();
+          }}
           onClick={() => onSelect(item.name)}
           style={{
             padding: "4px 8px",
             paddingLeft: `${8 + depth * 16}px`,
             borderRadius: "6px",
-            cursor: "pointer",
-            backgroundColor: isSelected ? "var(--green-4)" : "transparent",
-            color: isSelected ? "var(--green-11)" : "inherit",
+            cursor: isDraggable ? "grab" : "pointer",
+            backgroundColor: isDragOver
+              ? "var(--indigo-4)"
+              : isSelected
+                ? "var(--green-4)"
+                : "transparent",
+            color: isSelected && !isDragOver ? "var(--green-11)" : "inherit",
             transition: "background-color 0.1s ease",
+            borderTop: isDragOver ? "2px solid var(--indigo-8)" : "2px solid transparent",
+            borderBottom: isDragOver ? "2px solid transparent" : "2px solid transparent", // keeping space
+            boxSizing: "border-box",
           }}
           onMouseEnter={(e) => {
-            if (!isSelected) {
+            if (!isSelected && !isDragOver) {
               e.currentTarget.style.backgroundColor = "var(--gray-3)";
             }
           }}
           onMouseLeave={(e) => {
-            if (!isSelected) {
+            if (!isSelected && !isDragOver) {
               e.currentTarget.style.backgroundColor = "transparent";
             }
           }}

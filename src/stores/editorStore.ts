@@ -40,6 +40,7 @@ interface EditorState {
   clearGroupValues: (groupPath: string) => void;
   saveFiles: () => Promise<void>;
   restoreSession: () => Promise<void>;
+  moveKey: (sourceKeyName: string, targetKeyName: string) => void;
 }
 
 function buildKeysFromLocales(data: LocaleData[]): UnifiedKey[] {
@@ -103,11 +104,15 @@ function isKeyInGroup(keyName: string, groupPath: string): boolean {
   return true;
 }
 
-function replaceGroupPrefix(keyName: string, groupPath: string, newPrefix: string): string {
+function replaceGroupPrefix(
+  keyName: string,
+  groupPath: string,
+  newPrefix: string,
+): string {
   const groupSegments = groupPath.split("_");
   let matchLength = 0;
   let segIndex = 0;
-  
+
   const regex = /[^_.]+|[_.]/g;
   let match;
   while ((match = regex.exec(keyName)) !== null) {
@@ -124,7 +129,7 @@ function replaceGroupPrefix(keyName: string, groupPath: string, newPrefix: strin
       }
     }
   }
-  
+
   if (matchLength > 0 && segIndex === groupSegments.length) {
     return newPrefix + keyName.substring(matchLength);
   }
@@ -307,7 +312,8 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
   clearKeyValues: (keyName) => {
     set((state) => ({
       keys: updateKey(state.keys, keyName, (k) => {
-        const cleared: Record<string, string | string[] | null | undefined> = {};
+        const cleared: Record<string, string | string[] | null | undefined> =
+          {};
         for (const [lang, val] of Object.entries(k.values)) {
           cleared[lang] = Array.isArray(val) ? val.map(() => "") : "";
         }
@@ -330,7 +336,9 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
 
   deleteGroup: (groupPath) => {
     set((state) => {
-      const remainingKeys = state.keys.filter((k) => !isKeyInGroup(k.name, groupPath));
+      const remainingKeys = state.keys.filter(
+        (k) => !isKeyInGroup(k.name, groupPath),
+      );
       let selectedKeyName = state.selectedKeyName;
       if (selectedKeyName && isKeyInGroup(selectedKeyName, groupPath)) {
         selectedKeyName = null;
@@ -343,7 +351,8 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
     set((state) => {
       const newKeys = state.keys.map((k) => {
         if (!isKeyInGroup(k.name, groupPath)) return k;
-        const cleared: Record<string, string | string[] | null | undefined> = {};
+        const cleared: Record<string, string | string[] | null | undefined> =
+          {};
         for (const [lang, val] of Object.entries(k.values)) {
           cleared[lang] = Array.isArray(val) ? val.map(() => "") : "";
         }
@@ -399,5 +408,26 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
     } catch {
       clearSession();
     }
+  },
+
+  moveKey: (sourceKeyName, targetKeyName) => {
+    set((state) => {
+      const sourceIndex = state.keys.findIndex((k) => k.name === sourceKeyName);
+      const targetIndex = state.keys.findIndex((k) => k.name === targetKeyName);
+
+      if (
+        sourceIndex === -1 ||
+        targetIndex === -1 ||
+        sourceIndex === targetIndex
+      ) {
+        return state;
+      }
+
+      const newKeys = [...state.keys];
+      const [movedItem] = newKeys.splice(sourceIndex, 1);
+      newKeys.splice(targetIndex, 0, movedItem);
+
+      return { keys: newKeys, hasUnsavedChanges: true };
+    });
   },
 }));
