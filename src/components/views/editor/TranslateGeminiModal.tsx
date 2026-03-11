@@ -117,15 +117,19 @@ export function TranslateGeminiModal({
       const targetLangs = localeCodes.filter((c) => {
         if (c === sourceLang) return false;
         if (overrideExisting) return true;
-        
+
         if (item.type === "string") {
           const val = item.values[c];
           return !val || (val as string).trim() === "";
         } else {
-          const existingArr = Array.isArray(item.values[c]) ? (item.values[c] as string[]) : [];
+          const existingArr = Array.isArray(item.values[c])
+            ? (item.values[c] as string[])
+            : [];
           if (isArrayCustom) {
             const selectedIndices = Array.from(selectedElements);
-            return selectedIndices.some((idx) => !existingArr[idx] || existingArr[idx].trim() === "");
+            return selectedIndices.some(
+              (idx) => !existingArr[idx] || existingArr[idx].trim() === "",
+            );
           } else {
             for (let i = 0; i < arrayElementCount; i++) {
               if (!existingArr[i] || existingArr[i].trim() === "") return true;
@@ -136,7 +140,9 @@ export function TranslateGeminiModal({
       });
 
       if (targetLangs.length === 0) {
-        throw new Error("All target languages already have translations. Check 'Overwrite existing translations' to replace them.");
+        throw new Error(
+          "All target languages already have translations. Check 'Overwrite existing translations' to replace them.",
+        );
       }
 
       if (isArrayCustom) {
@@ -189,7 +195,11 @@ export function TranslateGeminiModal({
           }
 
           selectedIndices.forEach((elementIdx, translationIdx) => {
-            if (overrideExisting || !existingArr[elementIdx] || existingArr[elementIdx].trim() === "") {
+            if (
+              overrideExisting ||
+              !existingArr[elementIdx] ||
+              existingArr[elementIdx].trim() === ""
+            ) {
               existingArr[elementIdx] = translatedTexts[translationIdx] || "";
             }
           });
@@ -244,13 +254,17 @@ export function TranslateGeminiModal({
           const existingArr = Array.isArray(newValues[targetLang])
             ? [...(newValues[targetLang] as string[])]
             : [];
-          
-          while(existingArr.length < arrayElementCount) {
-             existingArr.push("");
+
+          while (existingArr.length < arrayElementCount) {
+            existingArr.push("");
           }
 
           translatedTexts.forEach((text, i) => {
-            if (overrideExisting || !existingArr[i] || existingArr[i].trim() === "") {
+            if (
+              overrideExisting ||
+              !existingArr[i] ||
+              existingArr[i].trim() === ""
+            ) {
               existingArr[i] = text;
             }
           });
@@ -306,7 +320,8 @@ export function TranslateGeminiModal({
         <Dialog.Title>Translate with Gemini</Dialog.Title>
         <Dialog.Description size="2" mb="4">
           Translate <Text weight="bold">{keyName}</Text> into all other
-          languages using <Text weight="bold">{resolvedModel || "Gemini"}</Text>.
+          languages using <Text weight="bold">{resolvedModel || "Gemini"}</Text>
+          .
         </Dialog.Description>
 
         {!hasApiKey && (
@@ -476,7 +491,9 @@ export function TranslateGeminiModal({
               <Flex gap="2" align="center">
                 <Checkbox
                   checked={overrideExisting}
-                  onCheckedChange={(checked) => setOverrideExisting(Boolean(checked))}
+                  onCheckedChange={(checked) =>
+                    setOverrideExisting(Boolean(checked))
+                  }
                   disabled={isTranslating}
                 />
                 Overwrite existing translations

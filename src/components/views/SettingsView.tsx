@@ -55,11 +55,7 @@ export function SettingsView() {
   };
 
   return (
-    <Flex
-      direction="column"
-      gap="4"
-      style={{ height: "100%", overflowY: "auto" }}
-    >
+    <Flex direction="column" style={{ height: "100%", overflowY: "auto" }}>
       <Heading size="6">Settings</Heading>
       <ScrollArea>
         <Card>

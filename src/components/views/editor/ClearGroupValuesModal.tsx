@@ -31,7 +31,8 @@ export function ClearGroupValuesModal({
         >
           <AlertCircle size={20} style={{ flexShrink: 0, marginTop: "2px" }} />
           <Text size="2">
-            This will empty out all translations for all keys in this group across all languages. The keys themselves will not be deleted.
+            This will empty out all translations for all keys in this group
+            across all languages. The keys themselves will not be deleted.
           </Text>
         </Flex>
 

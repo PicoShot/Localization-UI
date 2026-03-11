@@ -1,6 +1,13 @@
 import { memo } from "react";
 import { Box, Flex, Text, ContextMenu } from "@radix-ui/themes";
-import { ChevronRight, ChevronDown, Plus, Edit2, Eraser, Trash2 } from "lucide-react";
+import {
+  ChevronRight,
+  ChevronDown,
+  Plus,
+  Edit2,
+  Eraser,
+  Trash2,
+} from "lucide-react";
 import type { KeyTreeGroup } from "@/utils/keyTree";
 
 interface KeyTreeGroupRowProps {
@@ -77,7 +84,10 @@ export const KeyTreeGroupRow = memo(function KeyTreeGroupRow({
             Clear Group Values
           </Flex>
         </ContextMenu.Item>
-        <ContextMenu.Item color="red" onClick={() => onDeleteGroup(node.fullPath)}>
+        <ContextMenu.Item
+          color="red"
+          onClick={() => onDeleteGroup(node.fullPath)}
+        >
           <Flex gap="2" align="center">
             <Trash2 size={14} />
             Delete Group

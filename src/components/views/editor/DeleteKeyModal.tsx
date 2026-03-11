@@ -18,7 +18,8 @@ export function DeleteKeyModal({
       <Dialog.Content maxWidth="420px">
         <Dialog.Title>Delete Key</Dialog.Title>
         <Dialog.Description size="2">
-          Are you sure you want to delete this key? This action cannot be undone.
+          Are you sure you want to delete this key? This action cannot be
+          undone.
         </Dialog.Description>
 
         <Flex direction="column" gap="3" mt="3">

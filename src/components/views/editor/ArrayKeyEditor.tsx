@@ -7,7 +7,15 @@ import {
   TextField,
   Button,
 } from "@radix-ui/themes";
-import { X, Plus, Eraser, ChevronDown, ChevronRight, ChevronsUpDown, ChevronsDownUp } from "lucide-react";
+import {
+  X,
+  Plus,
+  Eraser,
+  ChevronDown,
+  ChevronRight,
+  ChevronsUpDown,
+  ChevronsDownUp,
+} from "lucide-react";
 import { LocaleData } from "@/lib/bloc";
 import { UnifiedKey } from "@/types/types";
 import { useState } from "react";
@@ -36,7 +44,9 @@ export function ArrayKeyEditor({
     index: number;
   } | null>(null);
 
-  const [expandedElements, setExpandedElements] = useState<Set<number>>(new Set());
+  const [expandedElements, setExpandedElements] = useState<Set<number>>(
+    new Set(),
+  );
 
   let maxLength = 0;
   locales.forEach((loc) => {
@@ -88,75 +98,91 @@ export function ArrayKeyEditor({
       {elements.map((_, i) => {
         const isExpanded = expandedElements.has(i);
         return (
-        <Card key={i} size="1" variant="surface">
-          <Flex direction="column" gap="3">
-            <Flex 
-              justify="between" 
-              align="center"
-              onClick={() => toggleElement(i)}
-              style={{ cursor: "pointer", userSelect: "none" }}
-            >
-              <Flex gap="2" align="center">
-                {isExpanded ? <ChevronDown size={14} color="var(--gray-11)" /> : <ChevronRight size={14} color="var(--gray-11)" />}
-                <Text size="2" weight="bold">
-                  Element {i}
-                </Text>
-              </Flex>
-              <IconButton
-                size="1"
-                variant="ghost"
-                color="red"
-                onClick={(e) => { e.stopPropagation(); onRemoveElement(i); }}
+          <Card key={i} size="1" variant="surface">
+            <Flex direction="column" gap="3">
+              <Flex
+                justify="between"
+                align="center"
+                onClick={() => toggleElement(i)}
+                style={{ cursor: "pointer", userSelect: "none" }}
               >
-                <X size={14} />
-              </IconButton>
-            </Flex>
-
-            {isExpanded && locales.map((locale) => {
-              const valArr = selectedKey.values[locale.languageCode] as
-                | string[]
-                | undefined;
-              const val = valArr ? valArr[i] : "";
-              return (
-                <Box key={locale.languageCode}>
-                  <Text
-                    as="label"
-                    size="1"
-                    color="gray"
-                    style={{ display: "block", marginBottom: "4px" }}
-                  >
-                    {GetLanguageName(locale.languageCode)}:
+                <Flex gap="2" align="center">
+                  {isExpanded ? (
+                    <ChevronDown size={14} color="var(--gray-11)" />
+                  ) : (
+                    <ChevronRight size={14} color="var(--gray-11)" />
+                  )}
+                  <Text size="2" weight="bold">
+                    Element {i}
                   </Text>
-                  <TextField.Root
-                    value={val || ""}
-                    onChange={(e) =>
-                      onElementChange(locale.languageCode, i, e.target.value)
-                    }
-                    onDoubleClick={() =>
-                      setEditingCell({
-                        langCode: locale.languageCode,
-                        index: i,
-                      })
-                    }
-                    placeholder={`Element ${i} in ${GetLanguageName(locale.languageCode)}`}
-                    style={{ cursor: "text" }}
-                  />
-                </Box>
-              );
-            })}
-          </Flex>
-        </Card>
-      )})}
+                </Flex>
+                <IconButton
+                  size="1"
+                  variant="ghost"
+                  color="red"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveElement(i);
+                  }}
+                >
+                  <X size={14} />
+                </IconButton>
+              </Flex>
+
+              {isExpanded &&
+                locales.map((locale) => {
+                  const valArr = selectedKey.values[locale.languageCode] as
+                    | string[]
+                    | undefined;
+                  const val = valArr ? valArr[i] : "";
+                  return (
+                    <Box key={locale.languageCode}>
+                      <Text
+                        as="label"
+                        size="1"
+                        color="gray"
+                        style={{ display: "block", marginBottom: "4px" }}
+                      >
+                        {GetLanguageName(locale.languageCode)}:
+                      </Text>
+                      <TextField.Root
+                        value={val || ""}
+                        onChange={(e) =>
+                          onElementChange(
+                            locale.languageCode,
+                            i,
+                            e.target.value,
+                          )
+                        }
+                        onDoubleClick={() =>
+                          setEditingCell({
+                            langCode: locale.languageCode,
+                            index: i,
+                          })
+                        }
+                        placeholder={`Element ${i} in ${GetLanguageName(locale.languageCode)}`}
+                        style={{ cursor: "text" }}
+                      />
+                    </Box>
+                  );
+                })}
+            </Flex>
+          </Card>
+        );
+      })}
 
       <Flex gap="2">
-        <Button variant="soft" onClick={() => {
-          onAddElement();
-          setExpandedElements((prev) => {
-            const next = new Set(prev);
-            next.add(maxLength);
-            return next;
-          });
-        }}>
+        <Button
+          variant="soft"
+          onClick={() => {
+            onAddElement();
+            setExpandedElements((prev) => {
+              const next = new Set(prev);
+              next.add(maxLength);
+              return next;
+            });
+          }}
+        >
           <Plus size={16} /> Add New Element
         </Button>
         <Button variant="soft" color="gray" onClick={onClearEmpty}>
