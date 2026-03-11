@@ -7,7 +7,7 @@ import {
   TextField,
   Button,
 } from "@radix-ui/themes";
-import { X, Plus, Eraser } from "lucide-react";
+import { X, Plus, Eraser, ChevronDown, ChevronRight, ChevronsUpDown, ChevronsDownUp } from "lucide-react";
 import { LocaleData } from "@/lib/bloc";
 import { UnifiedKey } from "@/types/types";
 import { useState } from "react";
@@ -36,6 +36,8 @@ export function ArrayKeyEditor({
     index: number;
   } | null>(null);
 
+  const [expandedElements, setExpandedElements] = useState<Set<number>>(new Set());
+
   let maxLength = 0;
   locales.forEach((loc) => {
     const val = selectedKey.values[loc.languageCode];
@@ -46,30 +48,71 @@ export function ArrayKeyEditor({
 
   const elements = Array.from({ length: maxLength });
 
+  const toggleElement = (index: number) => {
+    setExpandedElements((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
+
+  const expandAll = () => {
+    const all = new Set(elements.map((_, i) => i));
+    setExpandedElements(all);
+  };
+
+  const collapseAll = () => {
+    setExpandedElements(new Set());
+  };
+
   return (
     <Flex direction="column" gap="5">
-      <Text size="3" weight="bold" color="gray">
-        Array Elements
-      </Text>
+      <Flex justify="between" align="center">
+        <Text size="3" weight="bold" color="gray">
+          Array Elements
+        </Text>
+        <Flex gap="2">
+          <Button size="1" variant="soft" color="gray" onClick={expandAll}>
+            <ChevronsUpDown size={14} /> Expand All
+          </Button>
+          <Button size="1" variant="soft" color="gray" onClick={collapseAll}>
+            <ChevronsDownUp size={14} /> Collapse All
+          </Button>
+        </Flex>
+      </Flex>
 
-      {elements.map((_, i) => (
+      {elements.map((_, i) => {
+        const isExpanded = expandedElements.has(i);
+        return (
         <Card key={i} size="1" variant="surface">
           <Flex direction="column" gap="3">
-            <Flex justify="between" align="center">
-              <Text size="2" weight="bold">
-                Element {i}
-              </Text>
+            <Flex 
+              justify="between" 
+              align="center"
+              onClick={() => toggleElement(i)}
+              style={{ cursor: "pointer", userSelect: "none" }}
+            >
+              <Flex gap="2" align="center">
+                {isExpanded ? <ChevronDown size={14} color="var(--gray-11)" /> : <ChevronRight size={14} color="var(--gray-11)" />}
+                <Text size="2" weight="bold">
+                  Element {i}
+                </Text>
+              </Flex>
               <IconButton
                 size="1"
                 variant="ghost"
                 color="red"
-                onClick={() => onRemoveElement(i)}
+                onClick={(e) => { e.stopPropagation(); onRemoveElement(i); }}
               >
                 <X size={14} />
               </IconButton>
             </Flex>
 
-            {locales.map((locale) => {
+            {isExpanded && locales.map((locale) => {
               const valArr = selectedKey.values[locale.languageCode] as
                 | string[]
                 | undefined;
@@ -103,10 +146,17 @@ export function ArrayKeyEditor({
             })}
           </Flex>
         </Card>
-      ))}
+      )})}
 
       <Flex gap="2">
-        <Button variant="soft" onClick={onAddElement}>
+        <Button variant="soft" onClick={() => {
+          onAddElement();
+          setExpandedElements((prev) => {
+            const next = new Set(prev);
+            next.add(maxLength);
+            return next;
+          });
+        }}>
           <Plus size={16} /> Add New Element
         </Button>
         <Button variant="soft" color="gray" onClick={onClearEmpty}>
