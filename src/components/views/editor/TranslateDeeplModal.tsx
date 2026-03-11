@@ -50,14 +50,16 @@ export function TranslateDeeplModal({
   );
   const [elementTexts, setElementTexts] = useState<Record<number, string>>({});
 
-  const availableSourceLocales = localeCodes.filter((code) => {
-    if (!item) return false;
-    const val = item.values[code];
-    if (!val) return false;
-    if (typeof val === "string") return val.trim().length > 0;
-    if (Array.isArray(val)) return val.some((v) => v.trim().length > 0);
-    return false;
-  });
+  const availableSourceLocales = useMemo(() => {
+    return localeCodes.filter((code) => {
+      if (!item) return false;
+      const val = item.values[code];
+      if (!val) return false;
+      if (typeof val === "string") return val.trim().length > 0;
+      if (Array.isArray(val)) return val.some((v) => v.trim().length > 0);
+      return false;
+    });
+  }, [item, localeCodes]);
 
   const arrayElementCount = useMemo(() => {
     if (!item || item.type !== "array") return 0;
