@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, memo } from "react";
+import { useState, useMemo, useCallback, memo, useEffect } from "react";
 import {
   Flex,
   Button,
@@ -310,6 +310,60 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const handleDragEnd = useCallback(() => {
     setDragOverKeyName(null);
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
+      ) {
+        return;
+      }
+
+      if (e.key !== "ArrowUp" && e.key !== "ArrowDown") {
+        return;
+      }
+
+      if (!selectedKeyName) return;
+
+      const isCtrl = e.ctrlKey || e.metaKey;
+
+      const visibleKeys = groupByPrefix
+        ? renderItems.flatMap((i) => (i.kind === "leaf" ? [i.node.key.name] : []))
+        : filteredKeys.map((k) => k.name);
+
+      const currentIndex = visibleKeys.indexOf(selectedKeyName);
+      if (currentIndex === -1) return;
+
+      if (!isCtrl) {
+        e.preventDefault();
+        if (e.key === "ArrowUp" && currentIndex > 0) {
+          setSelectedKeyName(visibleKeys[currentIndex - 1]);
+        } else if (e.key === "ArrowDown" && currentIndex < visibleKeys.length - 1) {
+          setSelectedKeyName(visibleKeys[currentIndex + 1]);
+        }
+      } else {
+        if (sortByName || groupByPrefix) return;
+        e.preventDefault();
+        if (e.key === "ArrowUp" && currentIndex > 0) {
+          moveKey(selectedKeyName, visibleKeys[currentIndex - 1]);
+        } else if (e.key === "ArrowDown" && currentIndex < visibleKeys.length - 1) {
+          moveKey(selectedKeyName, visibleKeys[currentIndex + 1]);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    selectedKeyName,
+    filteredKeys,
+    renderItems,
+    groupByPrefix,
+    sortByName,
+    setSelectedKeyName,
+    moveKey,
+  ]);
 
   const localeCodes = useEditorStore((s) => s.locales).map(
     (l) => l.languageCode,
