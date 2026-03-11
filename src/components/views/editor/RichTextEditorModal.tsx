@@ -49,6 +49,12 @@ export function RichTextEditorModal({
             size="3"
             value={value}
             onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.ctrlKey && e.key === "s") {
+                e.preventDefault();
+                handleSave();
+              }
+            }}
             style={{ flexGrow: 1, fontFamily: "inherit" }}
             placeholder="Enter text..."
           />
