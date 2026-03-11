@@ -16,6 +16,7 @@ import { AddKeyModal } from "./AddKeyModal";
 import { DeleteKeyModal } from "./DeleteKeyModal";
 import { RenameKeyModal } from "./RenameKeyModal";
 import { ClearValuesModal } from "./ClearValuesModal";
+import { TranslateDeeplModal } from "./TranslateDeeplModal";
 import { useEditorStore } from "@/stores/editorStore";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import {
@@ -50,6 +51,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const [pendingDeleteKey, setPendingDeleteKey] = useState<string | null>(null);
   const [pendingRenameKey, setPendingRenameKey] = useState<string | null>(null);
   const [pendingClearKey, setPendingClearKey] = useState<string | null>(null);
+  const [pendingTranslateDeepLKey, setPendingTranslateDeepLKey] = useState<string | null>(null);
   const [groupByPrefix, setGroupByPrefix] = useState(false);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
     () => new Set(),
@@ -195,6 +197,17 @@ export const KeyListSidebar = memo(function KeyListSidebar({
     [setKeyValues],
   );
 
+  const handleTranslateDeepLRequest = useCallback((name: string) => {
+    setPendingTranslateDeepLKey(name);
+  }, []);
+
+  const pendingTranslateItem = useMemo(() => {
+    if (!pendingTranslateDeepLKey) return null;
+    return keys.find(k => k.name === pendingTranslateDeepLKey) || null;
+  }, [pendingTranslateDeepLKey, keys]);
+
+  const localeCodes = useEditorStore((s) => s.locales).map(l => l.languageCode);
+
   return (
     <Flex
       direction="column"
@@ -333,6 +346,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
                     onClearValues={handleClearRequest}
                     onPasteName={handlePasteName}
                     onPasteJsonData={handlePasteJsonData}
+                    onTranslateDeepL={handleTranslateDeepLRequest}
                     displayName={item.node.label}
                     depth={item.depth}
                   />
@@ -349,6 +363,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
                   onClearValues={handleClearRequest}
                   onPasteName={handlePasteName}
                   onPasteJsonData={handlePasteJsonData}
+                  onTranslateDeepL={handleTranslateDeepLRequest}
                 />
               ))}
         </Flex>
@@ -359,6 +374,14 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         onOpenChange={setShowAddKey}
         existingKeys={keys}
         onAdd={handleAddKey}
+      />
+
+      <TranslateDeeplModal
+        open={pendingTranslateDeepLKey !== null}
+        onOpenChange={(open) => { if (!open) setPendingTranslateDeepLKey(null); }}
+        keyName={pendingTranslateDeepLKey ?? ""}
+        item={pendingTranslateItem}
+        localeCodes={localeCodes}
       />
 
       <DeleteKeyModal

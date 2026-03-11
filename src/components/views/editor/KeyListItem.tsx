@@ -20,6 +20,7 @@ interface KeyListItemProps {
   onClearValues: (name: string) => void;
   onPasteName: (name: string) => void;
   onPasteJsonData: (name: string) => void;
+  onTranslateDeepL: (name: string) => void;
   displayName?: string;
   depth?: number;
 }
@@ -33,6 +34,7 @@ export const KeyListItem = memo(function KeyListItem({
   onClearValues,
   onPasteName,
   onPasteJsonData,
+  onTranslateDeepL,
   displayName,
   depth = 0,
 }: KeyListItemProps) {
@@ -109,7 +111,9 @@ export const KeyListItem = memo(function KeyListItem({
             </Flex>
           </ContextMenu.SubTrigger>
           <ContextMenu.SubContent>
-            <ContextMenu.Item shortcut="⌘ + T + D">DeepL</ContextMenu.Item>
+            <ContextMenu.Item shortcut="⌘ + T + D" onClick={() => onTranslateDeepL(item.name)}>
+              DeepL
+            </ContextMenu.Item>
             <ContextMenu.Item shortcut="⌘ + T + G">Gemini</ContextMenu.Item>
           </ContextMenu.SubContent>
         </ContextMenu.Sub>

@@ -20,10 +20,10 @@ pub fn run() {
         }));
     }
 
+    builder = builder.plugin(tauri_plugin_keyring::init());
     builder = builder.plugin(tauri_plugin_websocket::init());
     builder = builder.plugin(tauri_plugin_clipboard_manager::init());
     builder = builder.plugin(tauri_plugin_http::init());
-    builder = builder.plugin(tauri_plugin_stronghold::Builder::new(|_pass| todo!()).build());
     builder = builder.plugin(tauri_plugin_fs::init());
     builder = builder.plugin(tauri_plugin_persisted_scope::init());
     builder = builder.plugin(tauri_plugin_dialog::init());

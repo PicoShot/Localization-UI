@@ -13,13 +13,13 @@
         "@tauri-apps/plugin-dialog": "^2.6.0",
         "@tauri-apps/plugin-fs": "^2.4.5",
         "@tauri-apps/plugin-http": "~2.5.7",
-        "@tauri-apps/plugin-stronghold": "~2.3.1",
         "@tauri-apps/plugin-websocket": "~2.4.2",
         "fflate": "^0.8.2",
         "lucide-react": "^0.577.0",
         "react": "^19.2.4",
         "react-dom": "^19.2.4",
         "tailwindcss": "^4.2.1",
+        "tauri-plugin-keyring-api": "^0.1.1",
         "zod": "^4.3.6",
         "zustand": "^5.0.11",
       },
@@ -385,8 +385,6 @@
 
     "@tauri-apps/plugin-http": ["@tauri-apps/plugin-http@2.5.7", "", { "dependencies": { "@tauri-apps/api": "^2.10.1" } }, "sha512-+F2lEH/c9b0zSsOXKq+5hZNcd9F4IIKCK1T17RqMwpCmVnx2aoqY8yIBccCd25HTYUb3j6NPVbRax/m00hKG8A=="],
 
-    "@tauri-apps/plugin-stronghold": ["@tauri-apps/plugin-stronghold@2.3.1", "", { "dependencies": { "@tauri-apps/api": "^2.8.0" } }, "sha512-zFbD1Apk/VFdWaoGaoKcouRrZnzLFiNY9b1KDeBaN47sMaMHRYIa+ZDhvbzMOyH314+OHCQBXfe8I/ph59Lp9g=="],
-
     "@tauri-apps/plugin-websocket": ["@tauri-apps/plugin-websocket@2.4.2", "", { "dependencies": { "@tauri-apps/api": "^2.8.0" } }, "sha512-B1/csKPwJH9kLduNoqWFUdCsTgCvLM84T5ZZYK35jeBc9m2cm2m2G/hbSr28ZpVOZrl0x24fCWFe/9rpp7WETw=="],
 
     "@types/babel__core": ["@types/babel__core@7.20.5", "", { "dependencies": { "@babel/parser": "^7.20.7", "@babel/types": "^7.20.7", "@types/babel__generator": "*", "@types/babel__template": "*", "@types/babel__traverse": "*" } }, "sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA=="],
@@ -522,6 +520,8 @@
     "tailwindcss": ["tailwindcss@4.2.1", "", {}, "sha512-/tBrSQ36vCleJkAOsy9kbNTgaxvGbyOamC30PRePTQe/o1MFwEKHQk4Cn7BNGaPtjp+PuUrByJehM1hgxfq4sw=="],
 
     "tapable": ["tapable@2.3.0", "", {}, "sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg=="],
+
+    "tauri-plugin-keyring-api": ["tauri-plugin-keyring-api@0.1.1", "", { "dependencies": { "@tauri-apps/api": ">=2.1.1" } }, "sha512-vs1ztf6REJPfvUDBY3VgNHiW+xBHvBtMf3ZQIJKB8UCWdb2bLFoDS+BjUHe58deCPGTInCh+SEtd69pZvV/b4w=="],
 
     "tinyglobby": ["tinyglobby@0.2.15", "", { "dependencies": { "fdir": "^6.5.0", "picomatch": "^4.0.3" } }, "sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ=="],
 

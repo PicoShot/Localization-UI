@@ -12,14 +12,21 @@
     "core:window:allow-close",
     "core:window:allow-show",
     "core:path:allow-join",
+    "core:path:allow-resolve-directory",
     "dialog:allow-open",
     "fs:allow-read-dir",
     "fs:allow-read-file",
     "fs:allow-write-file",
-    "stronghold:default",
-    "http:default",
+    {
+      "identifier": "http:default",
+      "allow": [{ "url": "https://*.deepl.com/v2/translate" }]
+    },
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
-    "websocket:default"
+    "websocket:default",
+    "keyring:allow-set-password",
+    "keyring:allow-get-password",
+    "keyring:allow-delete-password",
+    "keyring:allow-ping"
   ]
 }
