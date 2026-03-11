@@ -35,6 +35,9 @@ interface EditorState {
   addArrayElement: (keyName: string) => void;
   clearEmptyArrayElements: (keyName: string) => void;
   clearKeyValues: (keyName: string) => void;
+  renameGroup: (groupPath: string, newPrefix: string) => void;
+  deleteGroup: (groupPath: string) => void;
+  clearGroupValues: (groupPath: string) => void;
   saveFiles: () => Promise<void>;
   restoreSession: () => Promise<void>;
 }
@@ -88,6 +91,44 @@ function keysToLocaleData(
       translations,
     };
   });
+}
+
+function isKeyInGroup(keyName: string, groupPath: string): boolean {
+  const segments = keyName.split(/[_.]/);
+  const groupSegments = groupPath.split("_");
+  if (segments.length <= groupSegments.length) return false;
+  for (let i = 0; i < groupSegments.length; i++) {
+    if (segments[i] !== groupSegments[i]) return false;
+  }
+  return true;
+}
+
+function replaceGroupPrefix(keyName: string, groupPath: string, newPrefix: string): string {
+  const groupSegments = groupPath.split("_");
+  let matchLength = 0;
+  let segIndex = 0;
+  
+  const regex = /[^_.]+|[_.]/g;
+  let match;
+  while ((match = regex.exec(keyName)) !== null) {
+    const text = match[0];
+    if (text !== "_" && text !== ".") {
+      if (text === groupSegments[segIndex]) {
+        segIndex++;
+        if (segIndex === groupSegments.length) {
+          matchLength = match.index + text.length;
+          break;
+        }
+      } else {
+        break;
+      }
+    }
+  }
+  
+  if (matchLength > 0 && segIndex === groupSegments.length) {
+    return newPrefix + keyName.substring(matchLength);
+  }
+  return keyName;
 }
 
 export const useEditorStore = create<EditorState>()((set, get) => ({
@@ -274,6 +315,42 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
       }),
       hasUnsavedChanges: true,
     }));
+  },
+
+  renameGroup: (groupPath, newPrefix) => {
+    set((state) => {
+      const newKeys = state.keys.map((k) => {
+        if (!isKeyInGroup(k.name, groupPath)) return k;
+        const newName = replaceGroupPrefix(k.name, groupPath, newPrefix);
+        return { ...k, name: newName };
+      });
+      return { keys: newKeys, hasUnsavedChanges: true };
+    });
+  },
+
+  deleteGroup: (groupPath) => {
+    set((state) => {
+      const remainingKeys = state.keys.filter((k) => !isKeyInGroup(k.name, groupPath));
+      let selectedKeyName = state.selectedKeyName;
+      if (selectedKeyName && isKeyInGroup(selectedKeyName, groupPath)) {
+        selectedKeyName = null;
+      }
+      return { keys: remainingKeys, selectedKeyName, hasUnsavedChanges: true };
+    });
+  },
+
+  clearGroupValues: (groupPath) => {
+    set((state) => {
+      const newKeys = state.keys.map((k) => {
+        if (!isKeyInGroup(k.name, groupPath)) return k;
+        const cleared: Record<string, string | string[] | null | undefined> = {};
+        for (const [lang, val] of Object.entries(k.values)) {
+          cleared[lang] = Array.isArray(val) ? val.map(() => "") : "";
+        }
+        return { ...k, values: cleared };
+      });
+      return { keys: newKeys, hasUnsavedChanges: true };
+    });
   },
 
   saveFiles: async () => {

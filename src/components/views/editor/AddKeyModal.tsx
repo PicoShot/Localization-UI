@@ -14,6 +14,7 @@ interface AddKeyModalProps {
   onOpenChange: (open: boolean) => void;
   existingKeys: UnifiedKey[];
   onAdd: (key: UnifiedKey) => void;
+  initialName?: string;
 }
 
 export function AddKeyModal({
@@ -21,18 +22,19 @@ export function AddKeyModal({
   onOpenChange,
   existingKeys,
   onAdd,
+  initialName,
 }: AddKeyModalProps) {
-  const [name, setName] = useState("");
+  const [name, setName] = useState(initialName ?? "");
   const [type, setType] = useState<"string" | "array">("string");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
-      setName("");
+      setName(initialName ?? "");
       setType("string");
       setError(null);
     }
-  }, [open]);
+  }, [open, initialName]);
 
   const validate = (value: string): string | null => {
     const trimmed = value.trim();

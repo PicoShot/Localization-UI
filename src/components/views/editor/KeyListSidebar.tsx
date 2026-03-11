@@ -18,6 +18,9 @@ import { RenameKeyModal } from "./RenameKeyModal";
 import { ClearValuesModal } from "./ClearValuesModal";
 import { TranslateDeeplModal } from "./TranslateDeeplModal";
 import { TranslateGeminiModal } from "./TranslateGeminiModal";
+import { RenameGroupModal } from "./RenameGroupModal";
+import { DeleteGroupModal } from "./DeleteGroupModal";
+import { ClearGroupValuesModal } from "./ClearGroupValuesModal";
 import { useEditorStore } from "@/stores/editorStore";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import {
@@ -44,6 +47,9 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const setKeyValues = useEditorStore((s) => s.setKeyValues);
   const clearKeyValues = useEditorStore((s) => s.clearKeyValues);
   const deleteSelectedKey = useEditorStore((s) => s.deleteSelectedKey);
+  const renameGroup = useEditorStore((s) => s.renameGroup);
+  const deleteGroup = useEditorStore((s) => s.deleteGroup);
+  const clearGroupValuesStore = useEditorStore((s) => s.clearGroupValues);
   const [searchQuery, setSearchQuery] = useState("");
   const [showStrings, setShowStrings] = useState(true);
   const [showArrays, setShowArrays] = useState(true);
@@ -54,6 +60,10 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const [pendingClearKey, setPendingClearKey] = useState<string | null>(null);
   const [pendingTranslateDeepLKey, setPendingTranslateDeepLKey] = useState<string | null>(null);
   const [pendingTranslateGeminiKey, setPendingTranslateGeminiKey] = useState<string | null>(null);
+  const [pendingAddGroupPrefix, setPendingAddGroupPrefix] = useState<string | null>(null);
+  const [pendingDeleteGroup, setPendingDeleteGroup] = useState<string | null>(null);
+  const [pendingRenameGroup, setPendingRenameGroup] = useState<string | null>(null);
+  const [pendingClearGroup, setPendingClearGroup] = useState<string | null>(null);
   const [groupByPrefix, setGroupByPrefix] = useState(false);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
     () => new Set(),
@@ -161,6 +171,40 @@ export const KeyListSidebar = memo(function KeyListSidebar({
     clearKeyValues(pendingClearKey);
     setPendingClearKey(null);
   }, [pendingClearKey, clearKeyValues]);
+
+  const handleAddGroupKeyRequest = useCallback((prefix: string) => {
+    setPendingAddGroupPrefix(prefix + "_");
+    setShowAddKey(true);
+  }, []);
+
+  const handleRenameGroupRequest = useCallback((prefix: string) => {
+    setPendingRenameGroup(prefix);
+  }, []);
+
+  const handleConfirmRenameGroup = useCallback((oldPrefix: string, newPrefix: string) => {
+    renameGroup(oldPrefix, newPrefix);
+    setPendingRenameGroup(null);
+  }, [renameGroup]);
+
+  const handleDeleteGroupRequest = useCallback((prefix: string) => {
+    setPendingDeleteGroup(prefix);
+  }, []);
+
+  const handleConfirmDeleteGroup = useCallback(() => {
+    if (!pendingDeleteGroup) return;
+    deleteGroup(pendingDeleteGroup);
+    setPendingDeleteGroup(null);
+  }, [pendingDeleteGroup, deleteGroup]);
+
+  const handleClearGroupRequest = useCallback((prefix: string) => {
+    setPendingClearGroup(prefix);
+  }, []);
+
+  const handleConfirmClearGroup = useCallback(() => {
+    if (!pendingClearGroup) return;
+    clearGroupValuesStore(pendingClearGroup);
+    setPendingClearGroup(null);
+  }, [pendingClearGroup, clearGroupValuesStore]);
 
   const handlePasteName = useCallback(
     async (keyName: string) => {
@@ -345,6 +389,10 @@ export const KeyListSidebar = memo(function KeyListSidebar({
                     depth={item.depth}
                     isExpanded={activeExpandedPaths.has(item.node.fullPath)}
                     onToggle={toggleGroup}
+                    onAddKey={handleAddGroupKeyRequest}
+                    onRenameGroup={handleRenameGroupRequest}
+                    onClearGroup={handleClearGroupRequest}
+                    onDeleteGroup={handleDeleteGroupRequest}
                   />
                 ) : (
                   <KeyListItem
@@ -384,9 +432,13 @@ export const KeyListSidebar = memo(function KeyListSidebar({
 
       <AddKeyModal
         open={showAddKey}
-        onOpenChange={setShowAddKey}
+        onOpenChange={(open) => {
+          setShowAddKey(open);
+          if (!open) setPendingAddGroupPrefix(null);
+        }}
         existingKeys={keys}
         onAdd={handleAddKey}
+        initialName={pendingAddGroupPrefix || undefined}
       />
 
       <TranslateDeeplModal
@@ -425,6 +477,27 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         onOpenChange={(open) => { if (!open) setPendingClearKey(null); }}
         keyName={pendingClearKey ?? ""}
         onConfirm={handleConfirmClear}
+      />
+
+      <RenameGroupModal
+        open={pendingRenameGroup !== null}
+        onOpenChange={(open) => { if (!open) setPendingRenameGroup(null); }}
+        currentPrefix={pendingRenameGroup ?? ""}
+        onRename={handleConfirmRenameGroup}
+      />
+
+      <DeleteGroupModal
+        open={pendingDeleteGroup !== null}
+        onOpenChange={(open) => { if (!open) setPendingDeleteGroup(null); }}
+        groupPrefix={pendingDeleteGroup ?? ""}
+        onConfirm={handleConfirmDeleteGroup}
+      />
+
+      <ClearGroupValuesModal
+        open={pendingClearGroup !== null}
+        onOpenChange={(open) => { if (!open) setPendingClearGroup(null); }}
+        groupPrefix={pendingClearGroup ?? ""}
+        onConfirm={handleConfirmClearGroup}
       />
     </Flex>
   );
