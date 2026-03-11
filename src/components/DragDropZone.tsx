@@ -63,7 +63,9 @@ export function DragDropZone() {
       if (!entry) continue;
 
       if (entry.isFile && entry.name.endsWith(".bloc")) {
-        const file = await new Promise<File>((resolve) => (entry as FileSystemFileEntry).file(resolve));
+        const file = await new Promise<File>((resolve) =>
+          (entry as FileSystemFileEntry).file(resolve),
+        );
         files.push(file);
       } else if (entry.isDirectory) {
         const reader = (entry as FileSystemDirectoryEntry).createReader();

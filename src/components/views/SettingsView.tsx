@@ -22,7 +22,9 @@ export function SettingsView() {
   const [showDeeplKey, setShowDeeplKey] = useState(false);
   const [localDeeplKey, setLocalDeeplKey] = useState(store.deeplApiKey || "");
   const [showGeminiKey, setShowGeminiKey] = useState(false);
-  const [localGeminiKey, setLocalGeminiKey] = useState(store.geminiApiKey || "");
+  const [localGeminiKey, setLocalGeminiKey] = useState(
+    store.geminiApiKey || "",
+  );
   const [prevDeeplApiKey, setPrevDeeplApiKey] = useState(store.deeplApiKey);
   const [prevGeminiApiKey, setPrevGeminiApiKey] = useState(store.geminiApiKey);
 
