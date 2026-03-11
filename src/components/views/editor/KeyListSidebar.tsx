@@ -7,8 +7,16 @@ import {
   Checkbox,
   Text,
   ScrollArea,
+  DropdownMenu,
 } from "@radix-ui/themes";
-import { Plus, Search, X, ChevronsDownUp, ChevronsUpDown } from "lucide-react";
+import {
+  Plus,
+  Search,
+  X,
+  ChevronsDownUp,
+  ChevronsUpDown,
+  MoreVertical,
+} from "lucide-react";
 import { UnifiedKey } from "@/types/types";
 import { KeyListItem } from "./KeyListItem";
 import { KeyTreeGroupRow } from "./KeyTreeGroupRow";
@@ -22,6 +30,9 @@ import { RenameGroupModal } from "./RenameGroupModal";
 import { DeleteGroupModal } from "./DeleteGroupModal";
 import { ClearGroupValuesModal } from "./ClearGroupValuesModal";
 import { PasteJsonDataModal } from "./PasteJsonDataModal";
+import { ExportJsonModal } from "./ExportJsonModal";
+import { ImportJsonModal } from "./ImportJsonModal";
+import { ClearAllDataModal } from "./ClearAllDataModal";
 import { useEditorStore } from "@/stores/editorStore";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
@@ -97,6 +108,10 @@ export const KeyListSidebar = memo(function KeyListSidebar({
     () => new Set(),
   );
   const [dragOverKeyName, setDragOverKeyName] = useState<string | null>(null);
+
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [showClearAllModal, setShowClearAllModal] = useState(false);
 
   const filteredKeys = useMemo(() => {
     let result = keys.filter((k) => {
@@ -249,36 +264,33 @@ export const KeyListSidebar = memo(function KeyListSidebar({
     [keys, renameKey],
   );
 
-  const handlePasteJsonData = useCallback(
-    async (keyName: string) => {
-      const text = await readText();
-      try {
-        const parsed = JSON.parse(text);
-        if (
-          typeof parsed !== "object" ||
-          parsed === null ||
-          Array.isArray(parsed)
-        )
-          return;
-        const values: Record<string, string | string[]> = {};
-        for (const [lang, val] of Object.entries(parsed)) {
-          if (typeof val === "string") {
-            values[lang] = val;
-          } else if (
-            Array.isArray(val) &&
-            val.every((v) => typeof v === "string")
-          ) {
-            values[lang] = val as string[];
-          }
-        }
-        if (Object.keys(values).length === 0) return;
-        setPendingPasteJsonData({ keyName, values });
-      } catch {
+  const handlePasteJsonData = useCallback(async (keyName: string) => {
+    const text = await readText();
+    try {
+      const parsed = JSON.parse(text);
+      if (
+        typeof parsed !== "object" ||
+        parsed === null ||
+        Array.isArray(parsed)
+      )
         return;
+      const values: Record<string, string | string[]> = {};
+      for (const [lang, val] of Object.entries(parsed)) {
+        if (typeof val === "string") {
+          values[lang] = val;
+        } else if (
+          Array.isArray(val) &&
+          val.every((v) => typeof v === "string")
+        ) {
+          values[lang] = val as string[];
+        }
       }
-    },
-    [],
-  );
+      if (Object.keys(values).length === 0) return;
+      setPendingPasteJsonData({ keyName, values });
+    } catch {
+      return;
+    }
+  }, []);
 
   const handleConfirmReplaceJsonData = useCallback(() => {
     if (!pendingPasteJsonData) return;
@@ -291,7 +303,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const handleConfirmMergeJsonData = useCallback(() => {
     if (!pendingPasteJsonData) return;
     const { keyName, values } = pendingPasteJsonData;
-    
+
     const existingKey = keys.find((k) => k.name === keyName);
     if (!existingKey) {
       setKeyValues(keyName, values);
@@ -455,6 +467,29 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         >
           <Plus size={18} /> Add Key
         </Button>
+
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger>
+            <IconButton variant="soft" size="2" color="gray">
+              <MoreVertical size={18} />
+            </IconButton>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content>
+            <DropdownMenu.Item onClick={() => setShowExportModal(true)}>
+              Export JSON Data...
+            </DropdownMenu.Item>
+            <DropdownMenu.Item onClick={() => setShowImportModal(true)}>
+              Import JSON Data...
+            </DropdownMenu.Item>
+            <DropdownMenu.Separator />
+            <DropdownMenu.Item
+              color="red"
+              onClick={() => setShowClearAllModal(true)}
+            >
+              Clear All Data...
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
       </Flex>
 
       <Flex
@@ -710,6 +745,21 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         keyName={pendingPasteJsonData?.keyName ?? ""}
         onReplace={handleConfirmReplaceJsonData}
         onMerge={handleConfirmMergeJsonData}
+      />
+
+      <ExportJsonModal
+        open={showExportModal}
+        onOpenChange={setShowExportModal}
+      />
+
+      <ImportJsonModal
+        open={showImportModal}
+        onOpenChange={setShowImportModal}
+      />
+
+      <ClearAllDataModal
+        open={showClearAllModal}
+        onOpenChange={setShowClearAllModal}
       />
     </Flex>
   );

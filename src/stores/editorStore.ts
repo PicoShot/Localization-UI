@@ -41,6 +41,12 @@ interface EditorState {
   saveFiles: () => Promise<void>;
   restoreSession: () => Promise<void>;
   moveKey: (sourceKeyName: string, targetKeyName: string) => void;
+  importJsonData: (
+    data: Record<string, Record<string, string | string[]>>,
+    targetLocales: string[],
+    replace: boolean,
+  ) => void;
+  clearAllData: (deleteKeys: boolean) => void;
 }
 
 function buildKeysFromLocales(data: LocaleData[]): UnifiedKey[] {
@@ -428,6 +434,84 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
       newKeys.splice(targetIndex, 0, movedItem);
 
       return { keys: newKeys, hasUnsavedChanges: true };
+    });
+  },
+
+  importJsonData: (data, targetLocales, replace) => {
+    set((state) => {
+      const newKeys = [...state.keys];
+
+      for (const [keyName, translations] of Object.entries(data)) {
+        let existingKeyIndex = newKeys.findIndex((k) => k.name === keyName);
+        let existingKey =
+          existingKeyIndex >= 0 ? newKeys[existingKeyIndex] : null;
+
+        if (!existingKey) {
+          let isArray = false;
+          for (const val of Object.values(translations)) {
+            if (Array.isArray(val)) isArray = true;
+          }
+
+          existingKey = {
+            name: keyName,
+            type: isArray ? "array" : "string",
+            values: {},
+          };
+
+          newKeys.push(existingKey);
+          existingKeyIndex = newKeys.length - 1;
+        }
+
+        const updatedValues = { ...existingKey.values };
+
+        for (const lang of targetLocales) {
+          if (lang in translations) {
+            const newVal = translations[lang];
+            if (replace) {
+              updatedValues[lang] = newVal;
+            } else {
+              const existingVal = updatedValues[lang];
+              const isExistingEmpty =
+                !existingVal ||
+                (typeof existingVal === "string" &&
+                  existingVal.trim() === "") ||
+                (Array.isArray(existingVal) && existingVal.length === 0) ||
+                (Array.isArray(existingVal) &&
+                  existingVal.every(
+                    (v) => typeof v !== "string" || v.trim() === "",
+                  ));
+
+              if (isExistingEmpty) {
+                updatedValues[lang] = newVal;
+              }
+            }
+          } else if (replace) {
+            updatedValues[lang] = existingKey.type === "array" ? [] : "";
+          }
+        }
+
+        newKeys[existingKeyIndex] = { ...existingKey, values: updatedValues };
+      }
+
+      return { keys: newKeys, hasUnsavedChanges: true };
+    });
+  },
+
+  clearAllData: (deleteKeys) => {
+    set((state) => {
+      if (deleteKeys) {
+        return { keys: [], selectedKeyName: null, hasUnsavedChanges: true };
+      } else {
+        const newKeys = state.keys.map((k) => {
+          const cleared: Record<string, string | string[] | null | undefined> =
+            {};
+          for (const [lang, val] of Object.entries(k.values)) {
+            cleared[lang] = Array.isArray(val) ? val.map(() => "") : "";
+          }
+          return { ...k, values: cleared };
+        });
+        return { keys: newKeys, hasUnsavedChanges: true };
+      }
     });
   },
 }));

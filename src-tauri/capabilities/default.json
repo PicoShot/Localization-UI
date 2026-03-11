@@ -17,6 +17,8 @@
     "fs:allow-read-dir",
     "fs:allow-read-file",
     "fs:allow-write-file",
+    "dialog:allow-save",
+    "fs:allow-read-text-file",
     {
       "identifier": "http:default",
       "allow": [
