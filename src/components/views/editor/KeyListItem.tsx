@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { Box, Flex, Text, ContextMenu } from "@radix-ui/themes";
 import {
   Edit2,
@@ -47,6 +47,68 @@ export const KeyListItem = memo(function KeyListItem({
   const handleCopyJsonData = () => {
     writeText(JSON.stringify(item.values, null, 2));
   };
+
+  useEffect(() => {
+    if (!isSelected) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
+      ) {
+        return;
+      }
+
+      const isCtrl = e.ctrlKey || e.metaKey;
+      const isShift = e.shiftKey;
+      const key = e.key.toLowerCase();
+
+      if (e.key === "F2") {
+        e.preventDefault();
+        onRename(item.name);
+      } else if (e.key === "Delete") {
+        e.preventDefault();
+        onDelete(item.name);
+      } else if (isCtrl && !isShift && key === "c") {
+        e.preventDefault();
+        handleCopyName();
+      } else if (isCtrl && isShift && key === "c") {
+        e.preventDefault();
+        handleCopyJsonData();
+      } else if (isCtrl && !isShift && key === "v") {
+        e.preventDefault();
+        onPasteName(item.name);
+      } else if (isCtrl && isShift && key === "v") {
+        e.preventDefault();
+        onPasteJsonData(item.name);
+      } else if (isCtrl && isShift && key === "d") {
+        e.preventDefault();
+        onTranslateDeepL(item.name);
+      } else if (isCtrl && isShift && key === "g") {
+        e.preventDefault();
+        onTranslateGemini(item.name);
+      } else if (isCtrl && !isShift && key === "e") {
+        e.preventDefault();
+        onClearValues(item.name);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    isSelected,
+    item,
+    onDelete,
+    onRename,
+    onClearValues,
+    onPasteName,
+    onPasteJsonData,
+    onTranslateDeepL,
+    onTranslateGemini,
+  ]);
+
+  const isMac = navigator.userAgent.includes("Mac");
+  const mod = isMac ? "⌘" : "Ctrl";
 
   return (
     <ContextMenu.Root>
@@ -98,7 +160,7 @@ export const KeyListItem = memo(function KeyListItem({
       </ContextMenu.Trigger>
 
       <ContextMenu.Content>
-        <ContextMenu.Item shortcut="⌘ + R" onClick={() => onRename(item.name)}>
+        <ContextMenu.Item shortcut="F2" onClick={() => onRename(item.name)}>
           <Flex gap="2" align="center">
             <Edit2 size={14} />
             Rename
@@ -113,10 +175,18 @@ export const KeyListItem = memo(function KeyListItem({
             </Flex>
           </ContextMenu.SubTrigger>
           <ContextMenu.SubContent>
-            <ContextMenu.Item shortcut="⌘ + T + D" onClick={() => onTranslateDeepL(item.name)}>
+            <ContextMenu.Item
+              shortcut={`${mod} + Shift + D`}
+              onClick={() => onTranslateDeepL(item.name)}
+            >
               DeepL
             </ContextMenu.Item>
-            <ContextMenu.Item shortcut="⌘ + T + G" onClick={() => onTranslateGemini(item.name)}>Gemini</ContextMenu.Item>
+            <ContextMenu.Item
+              shortcut={`${mod} + Shift + G`}
+              onClick={() => onTranslateGemini(item.name)}
+            >
+              Gemini
+            </ContextMenu.Item>
           </ContextMenu.SubContent>
         </ContextMenu.Sub>
 
@@ -128,10 +198,13 @@ export const KeyListItem = memo(function KeyListItem({
             </Flex>
           </ContextMenu.SubTrigger>
           <ContextMenu.SubContent>
-            <ContextMenu.Item shortcut="⌘ + C" onClick={handleCopyName}>
+            <ContextMenu.Item shortcut={`${mod} + C`} onClick={handleCopyName}>
               Name
             </ContextMenu.Item>
-            <ContextMenu.Item shortcut="⌘ + J + C" onClick={handleCopyJsonData}>
+            <ContextMenu.Item
+              shortcut={`${mod} + Shift + C`}
+              onClick={handleCopyJsonData}
+            >
               Json Data
             </ContextMenu.Item>
           </ContextMenu.SubContent>
@@ -145,10 +218,16 @@ export const KeyListItem = memo(function KeyListItem({
             </Flex>
           </ContextMenu.SubTrigger>
           <ContextMenu.SubContent>
-            <ContextMenu.Item shortcut="⌘ + V" onClick={() => onPasteName(item.name)}>
+            <ContextMenu.Item
+              shortcut={`${mod} + V`}
+              onClick={() => onPasteName(item.name)}
+            >
               Name
             </ContextMenu.Item>
-            <ContextMenu.Item shortcut="⌘ + J + V" onClick={() => onPasteJsonData(item.name)}>
+            <ContextMenu.Item
+              shortcut={`${mod} + Shift + V`}
+              onClick={() => onPasteJsonData(item.name)}
+            >
               Json Data
             </ContextMenu.Item>
           </ContextMenu.SubContent>
@@ -156,14 +235,21 @@ export const KeyListItem = memo(function KeyListItem({
 
         <ContextMenu.Separator />
 
-        <ContextMenu.Item shortcut="⌘ + E" onClick={() => onClearValues(item.name)}>
+        <ContextMenu.Item
+          shortcut={`${mod} + E`}
+          onClick={() => onClearValues(item.name)}
+        >
           <Flex gap="2" align="center">
             <Eraser size={14} />
             Clear Values
           </Flex>
         </ContextMenu.Item>
 
-        <ContextMenu.Item color="red" shortcut="⌘ + X" onClick={() => onDelete(item.name)}>
+        <ContextMenu.Item
+          color="red"
+          shortcut="Del"
+          onClick={() => onDelete(item.name)}
+        >
           <Flex gap="2" align="center">
             <Trash2 size={14} />
             Delete Key
