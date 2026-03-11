@@ -1,4 +1,4 @@
-import { memo, useEffect } from "react";
+import { memo, useEffect, useRef } from "react";
 import { Box, Flex, Text, ContextMenu } from "@radix-ui/themes";
 import {
   Edit2,
@@ -56,6 +56,14 @@ export const KeyListItem = memo(function KeyListItem({
   isDragOver = false,
 }: KeyListItemProps) {
   const store = useSettingsStore();
+
+  const itemRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isSelected && itemRef.current) {
+      itemRef.current.scrollIntoView({ behavior: "auto", block: "nearest" });
+    }
+  }, [isSelected]);
 
   const handleCopyName = () => {
     writeText(item.name);
@@ -131,6 +139,7 @@ export const KeyListItem = memo(function KeyListItem({
     <ContextMenu.Root>
       <ContextMenu.Trigger>
         <Box
+          ref={itemRef}
           draggable={isDraggable}
           onDragStart={(e) => onDragStart?.(e, item.name)}
           onDragOver={(e) => {
