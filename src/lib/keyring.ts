@@ -8,6 +8,7 @@ const SERVICE_NAME = "com.picoshot.localization";
 
 export enum KeyringType {
   DEEPL = "deepl-api-key",
+  GEMINI = "gemini-api-key",
 }
 
 export async function saveApiKey(

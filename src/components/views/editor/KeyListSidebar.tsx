@@ -17,6 +17,7 @@ import { DeleteKeyModal } from "./DeleteKeyModal";
 import { RenameKeyModal } from "./RenameKeyModal";
 import { ClearValuesModal } from "./ClearValuesModal";
 import { TranslateDeeplModal } from "./TranslateDeeplModal";
+import { TranslateGeminiModal } from "./TranslateGeminiModal";
 import { useEditorStore } from "@/stores/editorStore";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import {
@@ -52,6 +53,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   const [pendingRenameKey, setPendingRenameKey] = useState<string | null>(null);
   const [pendingClearKey, setPendingClearKey] = useState<string | null>(null);
   const [pendingTranslateDeepLKey, setPendingTranslateDeepLKey] = useState<string | null>(null);
+  const [pendingTranslateGeminiKey, setPendingTranslateGeminiKey] = useState<string | null>(null);
   const [groupByPrefix, setGroupByPrefix] = useState(false);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
     () => new Set(),
@@ -206,6 +208,15 @@ export const KeyListSidebar = memo(function KeyListSidebar({
     return keys.find(k => k.name === pendingTranslateDeepLKey) || null;
   }, [pendingTranslateDeepLKey, keys]);
 
+  const handleTranslateGeminiRequest = useCallback((name: string) => {
+    setPendingTranslateGeminiKey(name);
+  }, []);
+
+  const pendingTranslateGeminiItem = useMemo(() => {
+    if (!pendingTranslateGeminiKey) return null;
+    return keys.find(k => k.name === pendingTranslateGeminiKey) || null;
+  }, [pendingTranslateGeminiKey, keys]);
+
   const localeCodes = useEditorStore((s) => s.locales).map(l => l.languageCode);
 
   return (
@@ -347,6 +358,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
                     onPasteName={handlePasteName}
                     onPasteJsonData={handlePasteJsonData}
                     onTranslateDeepL={handleTranslateDeepLRequest}
+                    onTranslateGemini={handleTranslateGeminiRequest}
                     displayName={item.node.label}
                     depth={item.depth}
                   />
@@ -364,6 +376,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
                   onPasteName={handlePasteName}
                   onPasteJsonData={handlePasteJsonData}
                   onTranslateDeepL={handleTranslateDeepLRequest}
+                  onTranslateGemini={handleTranslateGeminiRequest}
                 />
               ))}
         </Flex>
@@ -381,6 +394,14 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         onOpenChange={(open) => { if (!open) setPendingTranslateDeepLKey(null); }}
         keyName={pendingTranslateDeepLKey ?? ""}
         item={pendingTranslateItem}
+        localeCodes={localeCodes}
+      />
+
+      <TranslateGeminiModal
+        open={pendingTranslateGeminiKey !== null}
+        onOpenChange={(open) => { if (!open) setPendingTranslateGeminiKey(null); }}
+        keyName={pendingTranslateGeminiKey ?? ""}
+        item={pendingTranslateGeminiItem}
         localeCodes={localeCodes}
       />
 

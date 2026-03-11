@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { DeeplApiMode } from "../lib/deepl";
+import { GeminiModel } from "../lib/gemini";
 import {
   KeyringType,
   saveApiKey,
@@ -12,11 +13,19 @@ interface SettingsState {
   deeplContext: string;
   deeplApiKey: string;
 
+  geminiModel: GeminiModel;
+  geminiCustomModel: string;
+  geminiApiKey: string;
+
   loadSettings: () => Promise<void>;
   setDeeplApiMode: (mode: DeeplApiMode) => void;
   setDeeplContext: (context: string) => void;
   setDeeplApiKey: (key: string) => Promise<void>;
   clearDeeplApiKey: () => Promise<void>;
+  setGeminiModel: (model: GeminiModel) => void;
+  setGeminiCustomModel: (name: string) => void;
+  setGeminiApiKey: (key: string) => Promise<void>;
+  clearGeminiApiKey: () => Promise<void>;
   saveSettings: () => void;
 }
 
@@ -24,6 +33,10 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   deeplApiMode: "free",
   deeplContext: "",
   deeplApiKey: "",
+
+  geminiModel: "gemini-2.0-flash",
+  geminiCustomModel: "",
+  geminiApiKey: "",
 
   loadSettings: async () => {
     try {
@@ -33,15 +46,22 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         set({
           deeplApiMode: parsed.deeplApiMode ?? "free",
           deeplContext: parsed.deeplContext ?? "",
+          geminiModel: parsed.geminiModel ?? "gemini-2.0-flash",
+          geminiCustomModel: parsed.geminiCustomModel ?? "",
         });
       }
     } catch (e) {
       console.error("Failed to parse settings from localStorage", e);
     }
 
-    const key = await loadApiKey(KeyringType.DEEPL);
-    if (key) {
-      set({ deeplApiKey: key });
+    const deeplKey = await loadApiKey(KeyringType.DEEPL);
+    if (deeplKey) {
+      set({ deeplApiKey: deeplKey });
+    }
+
+    const geminiKey = await loadApiKey(KeyringType.GEMINI);
+    if (geminiKey) {
+      set({ geminiApiKey: geminiKey });
     }
   },
 
@@ -65,6 +85,26 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     set({ deeplApiKey: "" });
   },
 
+  setGeminiModel: (model) => {
+    set({ geminiModel: model });
+    get().saveSettings();
+  },
+
+  setGeminiCustomModel: (name) => {
+    set({ geminiCustomModel: name });
+    get().saveSettings();
+  },
+
+  setGeminiApiKey: async (key: string) => {
+    await saveApiKey(KeyringType.GEMINI, key);
+    set({ geminiApiKey: key });
+  },
+
+  clearGeminiApiKey: async () => {
+    await removeApiKey(KeyringType.GEMINI);
+    set({ geminiApiKey: "" });
+  },
+
   saveSettings: () => {
     const state = get();
     localStorage.setItem(
@@ -72,6 +112,8 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       JSON.stringify({
         deeplApiMode: state.deeplApiMode,
         deeplContext: state.deeplContext,
+        geminiModel: state.geminiModel,
+        geminiCustomModel: state.geminiCustomModel,
       }),
     );
   },

@@ -19,7 +19,10 @@
     "fs:allow-write-file",
     {
       "identifier": "http:default",
-      "allow": [{ "url": "https://*.deepl.com/v2/translate" }]
+      "allow": [
+        { "url": "https://*.deepl.com/v2/translate" },
+        { "url": "https://generativelanguage.googleapis.com" }
+      ]
     },
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
