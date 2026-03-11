@@ -26,6 +26,7 @@ export async function translateText(
 
   const prompt = [
     `Translate the following ${texts.length} text(s) from "${sourceLang}" to these languages: ${targetLangs.map((l) => `"${l}"`).join(", ")}.`,
+    `Treat any text enclosed in curly braces like {0}, {1}, etc. as placeholders. Do NOT translate them, modify them, or remove them. Ensure they are correctly placed within the translated text without altering their original format.`,
     `Return ONLY a JSON object where each key is a target language code and each value is an array of ${texts.length} translated string(s) in the same order as the input.`,
     `No extra keys, markdown, or explanation.`,
     ``,
