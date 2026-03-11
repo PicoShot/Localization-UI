@@ -253,7 +253,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       get().disconnect();
     }
 
-    set({ connecting: true, error: null, myName: name });
+    set({ connecting: true, error: null, myName: name, permissions });
 
     try {
       wsInstance = await WebSocket.connect(serverUrl);
