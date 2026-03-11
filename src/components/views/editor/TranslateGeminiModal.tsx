@@ -43,6 +43,7 @@ export function TranslateGeminiModal({
   const [customText, setCustomText] = useState<string>("");
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [overrideExisting, setOverrideExisting] = useState(false);
 
   const [selectedElements, setSelectedElements] = useState<Set<number>>(
     new Set(),
@@ -113,6 +114,31 @@ export function TranslateGeminiModal({
     setError(null);
 
     try {
+      const targetLangs = localeCodes.filter((c) => {
+        if (c === sourceLang) return false;
+        if (overrideExisting) return true;
+        
+        if (item.type === "string") {
+          const val = item.values[c];
+          return !val || (val as string).trim() === "";
+        } else {
+          const existingArr = Array.isArray(item.values[c]) ? (item.values[c] as string[]) : [];
+          if (isArrayCustom) {
+            const selectedIndices = Array.from(selectedElements);
+            return selectedIndices.some((idx) => !existingArr[idx] || existingArr[idx].trim() === "");
+          } else {
+            for (let i = 0; i < arrayElementCount; i++) {
+              if (!existingArr[i] || existingArr[i].trim() === "") return true;
+            }
+            return false;
+          }
+        }
+      });
+
+      if (targetLangs.length === 0) {
+        throw new Error("All target languages already have translations. Check 'Overwrite existing translations' to replace them.");
+      }
+
       if (isArrayCustom) {
         if (selectedElements.size === 0) {
           throw new Error("Please select at least one element to translate");
@@ -128,11 +154,6 @@ export function TranslateGeminiModal({
             throw new Error(`Please enter text for Element ${idx}`);
           }
           textsToTranslate.push(text);
-        }
-
-        const targetLangs = localeCodes.filter((c) => c !== sourceLang);
-        if (targetLangs.length === 0) {
-          throw new Error("No target languages to translate to");
         }
 
         const newValues: Record<string, string | string[] | null | undefined> =
@@ -168,7 +189,9 @@ export function TranslateGeminiModal({
           }
 
           selectedIndices.forEach((elementIdx, translationIdx) => {
-            existingArr[elementIdx] = translatedTexts[translationIdx] || "";
+            if (overrideExisting || !existingArr[elementIdx] || existingArr[elementIdx].trim() === "") {
+              existingArr[elementIdx] = translatedTexts[translationIdx] || "";
+            }
           });
 
           newValues[targetLang] = existingArr;
@@ -198,12 +221,6 @@ export function TranslateGeminiModal({
         throw new Error("No text to translate");
       }
 
-      const targetLangs = localeCodes.filter((c) => c !== sourceLang);
-
-      if (targetLangs.length === 0) {
-        throw new Error("No target languages to translate to");
-      }
-
       const newValues: Record<string, string | string[] | null | undefined> = {
         ...item.values,
       };
@@ -219,9 +236,25 @@ export function TranslateGeminiModal({
       for (const targetLang of targetLangs) {
         const translatedTexts = batchResult[targetLang] || [];
         if (item.type === "string") {
-          newValues[targetLang] = translatedTexts[0] || "";
+          const currentVal = newValues[targetLang] as string | undefined;
+          if (overrideExisting || !currentVal || currentVal.trim() === "") {
+            newValues[targetLang] = translatedTexts[0] || "";
+          }
         } else {
-          newValues[targetLang] = translatedTexts;
+          const existingArr = Array.isArray(newValues[targetLang])
+            ? [...(newValues[targetLang] as string[])]
+            : [];
+          
+          while(existingArr.length < arrayElementCount) {
+             existingArr.push("");
+          }
+
+          translatedTexts.forEach((text, i) => {
+            if (overrideExisting || !existingArr[i] || existingArr[i].trim() === "") {
+              existingArr[i] = text;
+            }
+          });
+          newValues[targetLang] = existingArr;
         }
       }
 
@@ -437,6 +470,19 @@ export function TranslateGeminiModal({
               )}
             </Flex>
           </RadioGroup.Root>
+
+          <Flex mt="2">
+            <Text as="label" size="2">
+              <Flex gap="2" align="center">
+                <Checkbox
+                  checked={overrideExisting}
+                  onCheckedChange={(checked) => setOverrideExisting(Boolean(checked))}
+                  disabled={isTranslating}
+                />
+                Overwrite existing translations
+              </Flex>
+            </Text>
+          </Flex>
         </Flex>
 
         <Flex gap="3" mt="5" justify="end">
