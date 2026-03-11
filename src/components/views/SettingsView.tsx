@@ -60,6 +60,71 @@ export function SettingsView() {
       <ScrollArea>
         <Card>
           <Flex direction="column" gap="4">
+            <Heading size="4">Appearance</Heading>
+            <Text size="2" color="gray">
+              Customize the look and feel of the application.
+            </Text>
+
+            <Flex direction="column" gap="2">
+              <Text size="2" weight="bold">
+                Accent Color
+              </Text>
+              <Select.Root
+                value={store.accentColor}
+                onValueChange={(val) => store.setAccentColor(val)}
+              >
+                <Select.Trigger style={{ width: "100%" }} />
+                <Select.Content>
+                  {[
+                    "tomato",
+                    "red",
+                    "ruby",
+                    "crimson",
+                    "pink",
+                    "plum",
+                    "purple",
+                    "violet",
+                    "iris",
+                    "indigo",
+                    "blue",
+                    "cyan",
+                    "teal",
+                    "jade",
+                    "green",
+                    "grass",
+                    "brown",
+                    "orange",
+                    "sky",
+                    "mint",
+                    "lime",
+                    "yellow",
+                    "amber",
+                    "gold",
+                    "bronze",
+                    "gray",
+                  ].map((c) => (
+                    <Select.Item key={c} value={c}>
+                      <Flex align="center" gap="2">
+                        <div
+                          style={{
+                            width: "12px",
+                            height: "12px",
+                            borderRadius: "50%",
+                            backgroundColor: `var(--${c}-9)`,
+                          }}
+                        />
+                        {c.charAt(0).toUpperCase() + c.slice(1)}
+                      </Flex>
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Root>
+            </Flex>
+          </Flex>
+        </Card>
+
+        <Card>
+          <Flex direction="column" gap="4">
             <Heading size="4">DeepL API Configuration</Heading>
             <Text size="2" color="gray">
               Configure your DeepL API settings for automatic translations.

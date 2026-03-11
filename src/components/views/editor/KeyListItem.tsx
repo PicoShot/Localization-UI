@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { UnifiedKey } from "@/types/types";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+import { useSettingsStore } from "@/stores/settingsStore";
 
 interface KeyListItemProps {
   item: UnifiedKey;
@@ -54,6 +55,8 @@ export const KeyListItem = memo(function KeyListItem({
   onDragEnd,
   isDragOver = false,
 }: KeyListItemProps) {
+  const store = useSettingsStore();
+
   const handleCopyName = () => {
     writeText(item.name);
   };
@@ -149,14 +152,14 @@ export const KeyListItem = memo(function KeyListItem({
             borderRadius: "6px",
             cursor: isDraggable ? "grab" : "pointer",
             backgroundColor: isDragOver
-              ? "var(--indigo-4)"
+              ? "var(--accent-4)"
               : isSelected
-                ? "var(--indigo-4)"
+                ? "var(--accent-4)"
                 : "transparent",
-            color: isSelected && !isDragOver ? "var(--indigo-11)" : "inherit",
+            color: isSelected && !isDragOver ? "var(--accent-11)" : "inherit",
             transition: "background-color 0.1s ease",
             borderTop: isDragOver
-              ? "2px solid var(--indigo-8)"
+              ? "2px solid var(--accent-8)"
               : "2px solid transparent",
             borderBottom: isDragOver
               ? "2px solid transparent"
@@ -177,7 +180,7 @@ export const KeyListItem = memo(function KeyListItem({
           <Flex gap="2" align="center">
             <Text
               size="1"
-              color={isSelected ? "indigo" : "gray"}
+              color={isSelected ? store.accentColor as any : "gray"}
               weight="bold"
               style={{ fontFamily: "monospace", width: "20px" }}
             >

@@ -2,12 +2,14 @@ import { useState, useCallback } from "react";
 import { Card, Flex, Text, Button } from "@radix-ui/themes";
 import { LocaleBlocSerializer, LocaleData } from "@/lib/bloc";
 import { useEditorStore } from "@/stores/editorStore";
+import { useSettingsStore } from "@/stores/settingsStore";
 import { open } from "@tauri-apps/plugin-dialog";
 import { loadBlocFilesFromPaths } from "@/lib/loadBlocFiles";
 
 export function DragDropZone() {
   const loadFiles = useEditorStore((s) => s.loadFiles);
   const setLoadError = useEditorStore((s) => s.setLoadError);
+  const store = useSettingsStore();
   const [isDragActive, setIsDragActive] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -157,7 +159,7 @@ export function DragDropZone() {
         style={{ height: "100%" }}
       >
         <Flex direction="column" align="center" gap="1">
-          <Text size="5" weight="bold" color={isDragActive ? "blue" : "gray"}>
+          <Text size="5" weight="bold" color={isDragActive ? store.accentColor as any : "gray"}>
             {isProcessing
               ? "Processing..."
               : isDragActive

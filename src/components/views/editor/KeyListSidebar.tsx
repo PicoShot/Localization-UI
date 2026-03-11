@@ -22,6 +22,7 @@ import { RenameGroupModal } from "./RenameGroupModal";
 import { DeleteGroupModal } from "./DeleteGroupModal";
 import { ClearGroupValuesModal } from "./ClearGroupValuesModal";
 import { useEditorStore } from "@/stores/editorStore";
+import { useSettingsStore } from "@/stores/settingsStore";
 import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import {
   buildKeyTree,
@@ -43,6 +44,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
   setSelectedKeyName,
 }: KeyListSidebarProps) {
   const addKey = useEditorStore((s) => s.addKey);
+  const store = useSettingsStore();
   const renameKey = useEditorStore((s) => s.renameKey);
   const setKeyValues = useEditorStore((s) => s.setKeyValues);
   const clearKeyValues = useEditorStore((s) => s.clearKeyValues);
@@ -383,7 +385,7 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         <Button
           variant="soft"
           size="2"
-          color="indigo"
+          color={store.accentColor as any}
           style={{ flex: 1 }}
           onClick={() => setShowAddKey(true)}
         >

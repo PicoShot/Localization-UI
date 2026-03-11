@@ -66,13 +66,13 @@ export function TitleBar() {
               height: "100%",
               cursor: canSave && hasUnsavedChanges ? "pointer" : "default",
               opacity: canSave ? 1 : 0.4,
-              color: hasUnsavedChanges ? "var(--indigo-11)" : "var(--gray-9)",
+              color: hasUnsavedChanges ? "var(--accent-11)" : "var(--gray-9)",
               fontWeight: hasUnsavedChanges ? 600 : 400,
               fontSize: "12px",
             }}
             className={
               canSave && hasUnsavedChanges
-                ? "hover:bg-[var(--indigo-a3)] transition-colors"
+                ? "hover:bg-[var(--accent-a3)] transition-colors"
                 : "transition-colors"
             }
           >

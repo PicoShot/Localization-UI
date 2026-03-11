@@ -17,6 +17,8 @@ interface SettingsState {
   geminiCustomModel: string;
   geminiApiKey: string;
 
+  accentColor: string;
+
   loadSettings: () => Promise<void>;
   setDeeplApiMode: (mode: DeeplApiMode) => void;
   setDeeplContext: (context: string) => void;
@@ -26,6 +28,7 @@ interface SettingsState {
   setGeminiCustomModel: (name: string) => void;
   setGeminiApiKey: (key: string) => Promise<void>;
   clearGeminiApiKey: () => Promise<void>;
+  setAccentColor: (color: string) => void;
   saveSettings: () => void;
 }
 
@@ -38,6 +41,8 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   geminiCustomModel: "",
   geminiApiKey: "",
 
+  accentColor: "indigo",
+
   loadSettings: async () => {
     try {
       const stored = localStorage.getItem("settings");
@@ -48,6 +53,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           deeplContext: parsed.deeplContext ?? "",
           geminiModel: parsed.geminiModel ?? "gemini-2.0-flash",
           geminiCustomModel: parsed.geminiCustomModel ?? "",
+          accentColor: parsed.accentColor ?? "indigo",
         });
       }
     } catch (e) {
@@ -105,6 +111,11 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     set({ geminiApiKey: "" });
   },
 
+  setAccentColor: (color) => {
+    set({ accentColor: color });
+    get().saveSettings();
+  },
+
   saveSettings: () => {
     const state = get();
     localStorage.setItem(
@@ -114,6 +125,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         deeplContext: state.deeplContext,
         geminiModel: state.geminiModel,
         geminiCustomModel: state.geminiCustomModel,
+        accentColor: state.accentColor,
       }),
     );
   },

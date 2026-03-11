@@ -8,6 +8,7 @@ import {
   ExitIcon,
 } from "@radix-ui/react-icons";
 import { useEditorStore } from "@/stores/editorStore";
+import { useSettingsStore } from "@/stores/settingsStore";
 
 interface LeftBarProps {
   activeTab: "editor" | "settings";
@@ -16,6 +17,7 @@ interface LeftBarProps {
 
 export function LeftBar({ activeTab, setActiveTab }: LeftBarProps) {
   const closeFiles = useEditorStore((s) => s.closeFiles);
+  const store = useSettingsStore();
   const [isCompact, setIsCompact] = useState(true);
 
   const renderWithTooltip = (content: string, children: React.ReactElement) => {
@@ -65,7 +67,7 @@ export function LeftBar({ activeTab, setActiveTab }: LeftBarProps) {
           <Button
             size="3"
             variant="outline"
-            color={activeTab === "editor" ? "indigo" : "gray"}
+            color={activeTab === "editor" ? store.accentColor as any : "gray"}
             style={{
               justifyContent: isCompact ? "center" : "flex-start",
               cursor: "pointer",
@@ -84,7 +86,7 @@ export function LeftBar({ activeTab, setActiveTab }: LeftBarProps) {
           <Button
             size="3"
             variant="outline"
-            color={activeTab === "settings" ? "indigo" : "gray"}
+            color={activeTab === "settings" ? store.accentColor as any : "gray"}
             style={{
               justifyContent: isCompact ? "center" : "flex-start",
               cursor: "pointer",

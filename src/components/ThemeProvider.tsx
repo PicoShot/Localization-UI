@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Theme } from "@radix-ui/themes";
+import { useSettingsStore } from "../stores/settingsStore";
 import {
   //getCurrentWindow,
   type Theme as TauriTheme,
@@ -14,6 +15,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<TauriTheme>("dark");
+  const store = useSettingsStore();
 
   //const systemTheme = await getCurrentWindow().theme();
 
@@ -28,7 +30,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      <Theme appearance={theme} accentColor="indigo" grayColor="slate">
+      <Theme appearance={theme} accentColor={store.accentColor as any} grayColor="slate">
         {children}
       </Theme>
     </ThemeContext.Provider>
