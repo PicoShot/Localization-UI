@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Dialog,
   Button,
@@ -8,6 +8,9 @@ import {
   Select,
   TextArea,
   Callout,
+  Checkbox,
+  Card,
+  ScrollArea,
 } from "@radix-ui/themes";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { UnifiedKey } from "@/types/types";
@@ -41,6 +44,11 @@ export function TranslateDeeplModal({
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [selectedElements, setSelectedElements] = useState<Set<number>>(
+    new Set(),
+  );
+  const [elementTexts, setElementTexts] = useState<Record<number, string>>({});
+
   const availableSourceLocales = localeCodes.filter((code) => {
     if (!item) return false;
     const val = item.values[code];
@@ -49,6 +57,17 @@ export function TranslateDeeplModal({
     if (Array.isArray(val)) return val.some((v) => v.trim().length > 0);
     return false;
   });
+
+  const arrayElementCount = useMemo(() => {
+    if (!item || item.type !== "array") return 0;
+    let max = 0;
+    for (const val of Object.values(item.values)) {
+      if (Array.isArray(val) && val.length > max) max = val.length;
+    }
+    return max;
+  }, [item]);
+
+  const isArrayCustom = item?.type === "array" && sourceMode === "custom";
 
   useEffect(() => {
     if (open && item) {
@@ -61,8 +80,26 @@ export function TranslateDeeplModal({
       }
       setCustomText("");
       setError(null);
+      setSelectedElements(new Set());
+      setElementTexts({});
     }
   }, [open, item]);
+
+  const toggleElement = (index: number) => {
+    setSelectedElements((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
+
+  const setElementText = (index: number, text: string) => {
+    setElementTexts((prev) => ({ ...prev, [index]: text }));
+  };
 
   const handleTranslate = async () => {
     if (!item || !settings.deeplApiKey) return;
@@ -73,16 +110,80 @@ export function TranslateDeeplModal({
     try {
       const baseUrl = getDeeplBaseUrl(settings.deeplApiMode);
 
+      if (isArrayCustom) {
+        if (selectedElements.size === 0) {
+          throw new Error("Please select at least one element to translate");
+        }
+
+        const selectedIndices = Array.from(selectedElements).sort(
+          (a, b) => a - b,
+        );
+        const textsToTranslate: string[] = [];
+        for (const idx of selectedIndices) {
+          const text = elementTexts[idx] || "";
+          if (!text.trim()) {
+            throw new Error(`Please enter text for Element ${idx}`);
+          }
+          textsToTranslate.push(text);
+        }
+
+        const targetLangs = localeCodes.filter((c) => c !== sourceLang);
+        if (targetLangs.length === 0) {
+          throw new Error("No target languages to translate to");
+        }
+
+        const newValues: Record<string, string | string[] | null | undefined> =
+          { ...item.values };
+
+        const sourceArr = Array.isArray(newValues[sourceLang])
+          ? [...(newValues[sourceLang] as string[])]
+          : [];
+        while (sourceArr.length < arrayElementCount) {
+          sourceArr.push("");
+        }
+        selectedIndices.forEach((elementIdx, i) => {
+          sourceArr[elementIdx] = textsToTranslate[i];
+        });
+        newValues[sourceLang] = sourceArr;
+
+        await Promise.all(
+          targetLangs.map(async (targetLang) => {
+            const translatedTexts = await translateText({
+              texts: textsToTranslate,
+              sourceLang,
+              targetLang,
+              apiKey: settings.deeplApiKey,
+              baseUrl,
+              context: settings.deeplContext,
+            });
+
+            const existingArr = Array.isArray(newValues[targetLang])
+              ? [...(newValues[targetLang] as string[])]
+              : [];
+
+            while (existingArr.length < arrayElementCount) {
+              existingArr.push("");
+            }
+
+            selectedIndices.forEach((elementIdx, translationIdx) => {
+              existingArr[elementIdx] = translatedTexts[translationIdx] || "";
+            });
+
+            newValues[targetLang] = existingArr;
+          }),
+        );
+
+        setKeyValues(keyName, newValues);
+        onOpenChange(false);
+        return;
+      }
+
       let textsToTranslate: string[] = [];
       if (sourceMode === "custom") {
-        if (!customText.trim())
+        if (!customText.trim()) {
           throw new Error("Please enter custom text to translate");
-        textsToTranslate = [customText];
-        if (item.type === "array") {
-          textsToTranslate = customText
-            .split("\n")
-            .filter((t) => t.trim().length > 0);
         }
+        textsToTranslate = [customText];
       } else {
         const val = item.values[sourceLang];
         if (typeof val === "string") {
@@ -108,29 +209,30 @@ export function TranslateDeeplModal({
 
       await Promise.all(
         targetLangs.map(async (targetLang) => {
-          try {
-            const translatedTexts = await translateText({
-              texts: textsToTranslate,
-              sourceLang: sourceLang,
-              targetLang: targetLang,
-              apiKey: settings.deeplApiKey,
-              baseUrl: baseUrl,
-              context: settings.deeplContext,
-            });
+          const translatedTexts = await translateText({
+            texts: textsToTranslate,
+            sourceLang,
+            targetLang,
+            apiKey: settings.deeplApiKey,
+            baseUrl,
+            context: settings.deeplContext,
+          });
 
-            if (item.type === "string") {
-              newValues[targetLang] = translatedTexts[0] || "";
-            } else {
-              newValues[targetLang] = translatedTexts;
-            }
-          } catch (err: any) {
-            console.error(`Failed to translate to ${targetLang}:`, err);
-            throw new Error(
-              `Failed to translate to ${targetLang}: ${err.message}`,
-            );
+          if (item.type === "string") {
+            newValues[targetLang] = translatedTexts[0] || "";
+          } else {
+            newValues[targetLang] = translatedTexts;
           }
         }),
       );
+
+      if (sourceMode === "custom") {
+        if (item.type === "string") {
+          newValues[sourceLang] = customText;
+        } else {
+          newValues[sourceLang] = textsToTranslate;
+        }
+      }
 
       setKeyValues(keyName, newValues);
       onOpenChange(false);
@@ -142,16 +244,31 @@ export function TranslateDeeplModal({
   };
 
   const hasApiKey = Boolean(settings.deeplApiKey);
-  const canTranslate =
-    hasApiKey &&
-    !isTranslating &&
-    (sourceMode === "existing"
-      ? Boolean(sourceLang)
-      : Boolean(customText.trim()));
+
+  const canTranslate = useMemo(() => {
+    if (!hasApiKey || isTranslating) return false;
+    if (isArrayCustom) {
+      if (selectedElements.size === 0) return false;
+      return Array.from(selectedElements).every(
+        (idx) => (elementTexts[idx] || "").trim().length > 0,
+      );
+    }
+    if (sourceMode === "existing") return Boolean(sourceLang);
+    return Boolean(customText.trim());
+  }, [
+    hasApiKey,
+    isTranslating,
+    isArrayCustom,
+    selectedElements,
+    elementTexts,
+    sourceMode,
+    sourceLang,
+    customText,
+  ]);
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content style={{ maxWidth: 450 }}>
+      <Dialog.Content style={{ maxWidth: 500 }}>
         <Dialog.Title>Translate with DeepL</Dialog.Title>
         <Dialog.Description size="2" mb="4">
           Translate <Text weight="bold">{keyName}</Text> into all other
@@ -244,17 +361,65 @@ export function TranslateDeeplModal({
                         ))}
                       </Select.Content>
                     </Select.Root>
-                    <TextArea
-                      placeholder={
-                        item?.type === "array"
-                          ? "Enter texts (one per line)"
-                          : "Enter text to translate"
-                      }
-                      value={customText}
-                      onChange={(e) => setCustomText(e.target.value)}
-                      disabled={isTranslating}
-                      rows={4}
-                    />
+
+                    {item?.type === "array" ? (
+                      <Flex direction="column" gap="2">
+                        <Text size="1" color="gray">
+                          Select elements to translate and enter source text for
+                          each:
+                        </Text>
+                        <ScrollArea
+                          scrollbars="vertical"
+                          style={{ maxHeight: 300 }}
+                        >
+                          <Flex direction="column" gap="2" pr="3">
+                            {Array.from({ length: arrayElementCount }).map(
+                              (_, i) => (
+                                <Card key={i} size="1" variant="surface">
+                                  <Flex direction="column" gap="2">
+                                    <Text
+                                      as="label"
+                                      size="2"
+                                      style={{ cursor: "pointer" }}
+                                    >
+                                      <Flex gap="2" align="center">
+                                        <Checkbox
+                                          checked={selectedElements.has(i)}
+                                          onCheckedChange={() =>
+                                            toggleElement(i)
+                                          }
+                                          disabled={isTranslating}
+                                        />
+                                        Element {i}
+                                      </Flex>
+                                    </Text>
+                                    {selectedElements.has(i) && (
+                                      <TextArea
+                                        placeholder={`Source text for Element ${i}`}
+                                        value={elementTexts[i] || ""}
+                                        onChange={(e) =>
+                                          setElementText(i, e.target.value)
+                                        }
+                                        disabled={isTranslating}
+                                        rows={2}
+                                      />
+                                    )}
+                                  </Flex>
+                                </Card>
+                              ),
+                            )}
+                          </Flex>
+                        </ScrollArea>
+                      </Flex>
+                    ) : (
+                      <TextArea
+                        placeholder="Enter text to translate"
+                        value={customText}
+                        onChange={(e) => setCustomText(e.target.value)}
+                        disabled={isTranslating}
+                        rows={4}
+                      />
+                    )}
                   </Flex>
                 </Box>
               )}
