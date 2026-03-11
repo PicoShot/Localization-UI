@@ -31,11 +31,20 @@ export async function translateText(
 
   const url = `${baseUrl.replace(/\/$/, "")}/v2/translate`;
 
-  const body = {
-    text: texts,
+  const preprocessText = (t: string) => {
+    return t.replace(/\{[^}]+\}/g, (match) => `<x>${match}</x>`);
+  };
+
+  const postprocessText = (t: string) => {
+    return t.replace(/<x>(.*?)<\/x>/gi, "$1");
+  };
+
+  const body: Record<string, unknown> = {
+    text: texts.map(preprocessText),
     source_lang: sourceLang.toUpperCase(),
     target_lang: targetLang.toUpperCase(),
-    context: "",
+    tag_handling: "xml",
+    ignore_tags: ["x"],
   };
 
   if (context && context.trim() !== "") {
@@ -62,5 +71,5 @@ export async function translateText(
     throw new Error("Invalid response format from DeepL API");
   }
 
-  return data.translations.map((t: { text: string }) => t.text);
+  return data.translations.map((t: { text: string }) => postprocessText(t.text));
 }
