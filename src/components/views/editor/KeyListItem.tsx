@@ -189,7 +189,7 @@ export const KeyListItem = memo(function KeyListItem({
           <Flex gap="2" align="center">
             <Text
               size="1"
-              color={isSelected ? store.accentColor as any : "gray"}
+              color={isSelected ? (store.accentColor as any) : "gray"}
               weight="bold"
               style={{ fontFamily: "monospace", width: "20px" }}
             >

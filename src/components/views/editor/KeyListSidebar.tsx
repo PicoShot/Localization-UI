@@ -308,14 +308,17 @@ export const KeyListSidebar = memo(function KeyListSidebar({
     setDragOverKeyName(null);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent, targetName: string) => {
-    e.preventDefault();
-    const sourceName = e.dataTransfer.getData("text/plain");
-    setDragOverKeyName(null);
-    if (sourceName && sourceName !== targetName) {
-      moveKey(sourceName, targetName);
-    }
-  }, [moveKey]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent, targetName: string) => {
+      e.preventDefault();
+      const sourceName = e.dataTransfer.getData("text/plain");
+      setDragOverKeyName(null);
+      if (sourceName && sourceName !== targetName) {
+        moveKey(sourceName, targetName);
+      }
+    },
+    [moveKey],
+  );
 
   const handleDragEnd = useCallback(() => {
     setDragOverKeyName(null);
@@ -339,7 +342,9 @@ export const KeyListSidebar = memo(function KeyListSidebar({
       const isCtrl = e.ctrlKey || e.metaKey;
 
       const visibleKeys = groupByPrefix
-        ? renderItems.flatMap((i) => (i.kind === "leaf" ? [i.node.key.name] : []))
+        ? renderItems.flatMap((i) =>
+            i.kind === "leaf" ? [i.node.key.name] : [],
+          )
         : filteredKeys.map((k) => k.name);
 
       const currentIndex = visibleKeys.indexOf(selectedKeyName);
@@ -349,7 +354,10 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         e.preventDefault();
         if (e.key === "ArrowUp" && currentIndex > 0) {
           setSelectedKeyName(visibleKeys[currentIndex - 1]);
-        } else if (e.key === "ArrowDown" && currentIndex < visibleKeys.length - 1) {
+        } else if (
+          e.key === "ArrowDown" &&
+          currentIndex < visibleKeys.length - 1
+        ) {
           setSelectedKeyName(visibleKeys[currentIndex + 1]);
         }
       } else {
@@ -357,7 +365,10 @@ export const KeyListSidebar = memo(function KeyListSidebar({
         e.preventDefault();
         if (e.key === "ArrowUp" && currentIndex > 0) {
           moveKey(selectedKeyName, visibleKeys[currentIndex - 1]);
-        } else if (e.key === "ArrowDown" && currentIndex < visibleKeys.length - 1) {
+        } else if (
+          e.key === "ArrowDown" &&
+          currentIndex < visibleKeys.length - 1
+        ) {
           moveKey(selectedKeyName, visibleKeys[currentIndex + 1]);
         }
       }

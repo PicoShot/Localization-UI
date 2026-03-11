@@ -65,7 +65,7 @@ export function RenameGroupModal({
             </Button>
           </Dialog.Close>
           <Button
-            color="blue"
+            color="indigo"
             onClick={handleRename}
             disabled={!newPrefix.trim() || newPrefix.trim() === currentPrefix}
           >

@@ -28,7 +28,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      <Theme appearance={theme} accentColor={store.accentColor as any} grayColor="slate">
+      <Theme
+        appearance={theme}
+        accentColor={store.accentColor as any}
+        grayColor="slate"
+      >
         {children}
       </Theme>
     </ThemeContext.Provider>

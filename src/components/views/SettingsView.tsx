@@ -55,249 +55,257 @@ export function SettingsView() {
   };
 
   return (
-    <Flex direction="column" style={{ height: "100%", overflowY: "auto" }} p="4">
-      <Heading size="6" mb="4">Settings</Heading>
+    <Flex
+      direction="column"
+      style={{ height: "100%", overflowY: "auto" }}
+      p="4"
+    >
+      <Heading size="6" mb="4">
+        Settings
+      </Heading>
       <ScrollArea>
         <Flex direction="column" gap="4" pb="4">
           <Card>
-          <Flex direction="column" gap="4">
-            <Heading size="4">Appearance</Heading>
-            <Text size="2" color="gray">
-              Customize the look and feel of the application.
-            </Text>
-
-            <Flex direction="column" gap="2">
-              <Text size="2" weight="bold">
-                Accent Color
+            <Flex direction="column" gap="4">
+              <Heading size="4">Appearance</Heading>
+              <Text size="2" color="gray">
+                Customize the look and feel of the application.
               </Text>
-              <Select.Root
-                value={store.accentColor}
-                onValueChange={(val) => store.setAccentColor(val)}
-              >
-                <Select.Trigger style={{ width: "100%" }} />
-                <Select.Content>
-                  {[
-                    "tomato",
-                    "red",
-                    "ruby",
-                    "crimson",
-                    "pink",
-                    "plum",
-                    "purple",
-                    "violet",
-                    "iris",
-                    "indigo",
-                    "blue",
-                    "cyan",
-                    "teal",
-                    "jade",
-                    "green",
-                    "grass",
-                    "brown",
-                    "orange",
-                    "sky",
-                    "mint",
-                    "lime",
-                    "yellow",
-                    "amber",
-                    "gold",
-                    "bronze",
-                    "gray",
-                  ].map((c) => (
-                    <Select.Item key={c} value={c}>
-                      <Flex align="center" gap="2">
-                        <div
-                          style={{
-                            width: "12px",
-                            height: "12px",
-                            borderRadius: "50%",
-                            backgroundColor: `var(--${c}-9)`,
-                          }}
-                        />
-                        {c.charAt(0).toUpperCase() + c.slice(1)}
-                      </Flex>
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select.Root>
-            </Flex>
-          </Flex>
-        </Card>
 
-        <Card>
-          <Flex direction="column" gap="4">
-            <Heading size="4">DeepL API Configuration</Heading>
-            <Text size="2" color="gray">
-              Configure your DeepL API settings for automatic translations.
-            </Text>
-
-            <Flex direction="column" gap="2">
-              <Text size="2" weight="bold">
-                API URL Mode
-              </Text>
-              <RadioGroup.Root
-                value={store.deeplApiMode}
-                onValueChange={(val) =>
-                  store.setDeeplApiMode(val as DeeplApiMode)
-                }
-              >
-                <RadioGroup.Item value="free">DeepL Free</RadioGroup.Item>
-                <RadioGroup.Item value="paid">DeepL Pro (Paid)</RadioGroup.Item>
-              </RadioGroup.Root>
-            </Flex>
-
-            <Flex direction="column" gap="2">
-              <Text size="2" weight="bold">
-                API Key
-              </Text>
-              <Flex gap="2" align="center">
-                <TextField.Root
-                  style={{ flex: 1 }}
-                  type={showDeeplKey ? "text" : "password"}
-                  placeholder="Enter your DeepL API key"
-                  value={localDeeplKey}
-                  onChange={(e) => setLocalDeeplKey(e.target.value)}
+              <Flex direction="column" gap="2">
+                <Text size="2" weight="bold">
+                  Accent Color
+                </Text>
+                <Select.Root
+                  value={store.accentColor}
+                  onValueChange={(val) => store.setAccentColor(val)}
                 >
-                  <TextField.Slot side="right">
-                    <IconButton
-                      size="1"
-                      variant="ghost"
-                      onClick={() => setShowDeeplKey(!showDeeplKey)}
-                    >
-                      {showDeeplKey ? <EyeNoneIcon /> : <EyeOpenIcon />}
-                    </IconButton>
-                  </TextField.Slot>
-                </TextField.Root>
-
-                <Button
-                  variant="soft"
-                  onClick={handleSaveDeeplKey}
-                  disabled={localDeeplKey === store.deeplApiKey}
-                >
-                  Save Key
-                </Button>
-
-                {store.deeplApiKey && (
-                  <IconButton
-                    color="red"
-                    variant="soft"
-                    onClick={handleClearDeeplKey}
-                  >
-                    <TrashIcon />
-                  </IconButton>
-                )}
+                  <Select.Trigger />
+                  <Select.Content>
+                    {[
+                      "tomato",
+                      "red",
+                      "ruby",
+                      "crimson",
+                      "pink",
+                      "plum",
+                      "purple",
+                      "violet",
+                      "iris",
+                      "indigo",
+                      "blue",
+                      "cyan",
+                      "teal",
+                      "jade",
+                      "green",
+                      "grass",
+                      "brown",
+                      "orange",
+                      "sky",
+                      "mint",
+                      "lime",
+                      "yellow",
+                      "amber",
+                      "gold",
+                      "bronze",
+                      "gray",
+                    ].map((c) => (
+                      <Select.Item key={c} value={c}>
+                        <Flex align="center" gap="2">
+                          <div
+                            style={{
+                              width: "12px",
+                              height: "12px",
+                              borderRadius: "50%",
+                              backgroundColor: `var(--${c}-9)`,
+                            }}
+                          />
+                          {c.charAt(0).toUpperCase() + c.slice(1)}
+                        </Flex>
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
               </Flex>
-              <Text size="1" color="gray">
-                Your API key is securely stored in your local computer using
-                your OS's native Keyring/Keychain.
-              </Text>
             </Flex>
+          </Card>
 
-            <Flex direction="column" gap="2">
-              <Text size="2" weight="bold">
-                Translation Context
+          <Card>
+            <Flex direction="column" gap="4">
+              <Heading size="4">DeepL API Configuration</Heading>
+              <Text size="2" color="gray">
+                Configure your DeepL API settings for automatic translations.
               </Text>
-              <TextArea
-                placeholder="Context text to influence translations (e.g. 'This is a localization text for a video game.')"
-                value={store.deeplContext}
-                onChange={(e) => store.setDeeplContext(e.target.value)}
-                rows={3}
-              />
-              <Text size="1" color="gray">
-                Context text can help DeepL understand the domain and improve
-                translation quality but also can highly affect translation
-                results.
-              </Text>
-            </Flex>
-          </Flex>
-        </Card>
 
-        <Card>
-          <Flex direction="column" gap="4">
-            <Heading size="4">Gemini AI Configuration</Heading>
-            <Text size="2" color="gray">
-              Configure your Gemini AI settings for AI-powered translations.
-            </Text>
+              <Flex direction="column" gap="2">
+                <Text size="2" weight="bold">
+                  API URL Mode
+                </Text>
+                <RadioGroup.Root
+                  value={store.deeplApiMode}
+                  onValueChange={(val) =>
+                    store.setDeeplApiMode(val as DeeplApiMode)
+                  }
+                >
+                  <RadioGroup.Item value="free">DeepL Free</RadioGroup.Item>
+                  <RadioGroup.Item value="paid">
+                    DeepL Pro (Paid)
+                  </RadioGroup.Item>
+                </RadioGroup.Root>
+              </Flex>
 
-            <Flex direction="column" gap="2">
-              <Text size="2" weight="bold">
-                Gemini AI Model
-              </Text>
-              <Select.Root
-                value={store.geminiModel}
-                onValueChange={(val) =>
-                  store.setGeminiModel(val as GeminiModel)
-                }
-              >
-                <Select.Trigger style={{ width: "100%" }} />
-                <Select.Content>
-                  {GEMINI_MODELS.map((m) => (
-                    <Select.Item key={m} value={m}>
-                      {m}
-                    </Select.Item>
-                  ))}
-                  <Select.Separator />
-                  <Select.Item value="custom">Custom</Select.Item>
-                </Select.Content>
-              </Select.Root>
+              <Flex direction="column" gap="2">
+                <Text size="2" weight="bold">
+                  API Key
+                </Text>
+                <Flex gap="2" align="center">
+                  <TextField.Root
+                    style={{ flex: 1 }}
+                    type={showDeeplKey ? "text" : "password"}
+                    placeholder="Enter your DeepL API key"
+                    value={localDeeplKey}
+                    onChange={(e) => setLocalDeeplKey(e.target.value)}
+                  >
+                    <TextField.Slot side="right">
+                      <IconButton
+                        size="1"
+                        variant="ghost"
+                        onClick={() => setShowDeeplKey(!showDeeplKey)}
+                      >
+                        {showDeeplKey ? <EyeNoneIcon /> : <EyeOpenIcon />}
+                      </IconButton>
+                    </TextField.Slot>
+                  </TextField.Root>
 
-              {store.geminiModel === "custom" && (
-                <TextField.Root
-                  placeholder="Enter custom model name (e.g. gemini-2.0-pro-exp)"
-                  value={store.geminiCustomModel}
-                  onChange={(e) => store.setGeminiCustomModel(e.target.value)}
+                  <Button
+                    variant="soft"
+                    onClick={handleSaveDeeplKey}
+                    disabled={localDeeplKey === store.deeplApiKey}
+                  >
+                    Save Key
+                  </Button>
+
+                  {store.deeplApiKey && (
+                    <IconButton
+                      color="red"
+                      variant="soft"
+                      onClick={handleClearDeeplKey}
+                    >
+                      <TrashIcon />
+                    </IconButton>
+                  )}
+                </Flex>
+                <Text size="1" color="gray">
+                  Your API key is securely stored in your local computer using
+                  your OS's native Keyring/Keychain.
+                </Text>
+              </Flex>
+
+              <Flex direction="column" gap="2">
+                <Text size="2" weight="bold">
+                  Translation Context
+                </Text>
+                <TextArea
+                  placeholder="Context text to influence translations (e.g. 'This is a localization text for a video game.')"
+                  value={store.deeplContext}
+                  onChange={(e) => store.setDeeplContext(e.target.value)}
+                  rows={3}
                 />
-              )}
+                <Text size="1" color="gray">
+                  Context text can help DeepL understand the domain and improve
+                  translation quality but also can highly affect translation
+                  results.
+                </Text>
+              </Flex>
             </Flex>
+          </Card>
 
-            <Flex direction="column" gap="2">
-              <Text size="2" weight="bold">
-                API Key
+          <Card>
+            <Flex direction="column" gap="4">
+              <Heading size="4">Gemini AI Configuration</Heading>
+              <Text size="2" color="gray">
+                Configure your Gemini AI settings for AI-powered translations.
               </Text>
-              <Flex gap="2" align="center">
-                <TextField.Root
-                  style={{ flex: 1 }}
-                  type={showGeminiKey ? "text" : "password"}
-                  placeholder="Enter your Gemini API key"
-                  value={localGeminiKey}
-                  onChange={(e) => setLocalGeminiKey(e.target.value)}
-                >
-                  <TextField.Slot side="right">
-                    <IconButton
-                      size="1"
-                      variant="ghost"
-                      onClick={() => setShowGeminiKey(!showGeminiKey)}
-                    >
-                      {showGeminiKey ? <EyeNoneIcon /> : <EyeOpenIcon />}
-                    </IconButton>
-                  </TextField.Slot>
-                </TextField.Root>
 
-                <Button
-                  variant="soft"
-                  onClick={handleSaveGeminiKey}
-                  disabled={localGeminiKey === store.geminiApiKey}
+              <Flex direction="column" gap="2">
+                <Text size="2" weight="bold">
+                  Gemini AI Model
+                </Text>
+                <Select.Root
+                  value={store.geminiModel}
+                  onValueChange={(val) =>
+                    store.setGeminiModel(val as GeminiModel)
+                  }
                 >
-                  Save Key
-                </Button>
+                  <Select.Trigger style={{ width: "100%" }} />
+                  <Select.Content>
+                    {GEMINI_MODELS.map((m) => (
+                      <Select.Item key={m} value={m}>
+                        {m}
+                      </Select.Item>
+                    ))}
+                    <Select.Separator />
+                    <Select.Item value="custom">Custom</Select.Item>
+                  </Select.Content>
+                </Select.Root>
 
-                {store.geminiApiKey && (
-                  <IconButton
-                    color="red"
-                    variant="soft"
-                    onClick={handleClearGeminiKey}
-                  >
-                    <TrashIcon />
-                  </IconButton>
+                {store.geminiModel === "custom" && (
+                  <TextField.Root
+                    placeholder="Enter custom model name (e.g. gemini-2.0-pro-exp)"
+                    value={store.geminiCustomModel}
+                    onChange={(e) => store.setGeminiCustomModel(e.target.value)}
+                  />
                 )}
               </Flex>
-              <Text size="1" color="gray">
-                Your API key is securely stored in your local computer using
-                your OS's native Keyring/Keychain.
-              </Text>
+
+              <Flex direction="column" gap="2">
+                <Text size="2" weight="bold">
+                  API Key
+                </Text>
+                <Flex gap="2" align="center">
+                  <TextField.Root
+                    style={{ flex: 1 }}
+                    type={showGeminiKey ? "text" : "password"}
+                    placeholder="Enter your Gemini API key"
+                    value={localGeminiKey}
+                    onChange={(e) => setLocalGeminiKey(e.target.value)}
+                  >
+                    <TextField.Slot side="right">
+                      <IconButton
+                        size="1"
+                        variant="ghost"
+                        onClick={() => setShowGeminiKey(!showGeminiKey)}
+                      >
+                        {showGeminiKey ? <EyeNoneIcon /> : <EyeOpenIcon />}
+                      </IconButton>
+                    </TextField.Slot>
+                  </TextField.Root>
+
+                  <Button
+                    variant="soft"
+                    onClick={handleSaveGeminiKey}
+                    disabled={localGeminiKey === store.geminiApiKey}
+                  >
+                    Save Key
+                  </Button>
+
+                  {store.geminiApiKey && (
+                    <IconButton
+                      color="red"
+                      variant="soft"
+                      onClick={handleClearGeminiKey}
+                    >
+                      <TrashIcon />
+                    </IconButton>
+                  )}
+                </Flex>
+                <Text size="1" color="gray">
+                  Your API key is securely stored in your local computer using
+                  your OS's native Keyring/Keychain.
+                </Text>
+              </Flex>
             </Flex>
-          </Flex>
-        </Card>
+          </Card>
         </Flex>
       </ScrollArea>
     </Flex>

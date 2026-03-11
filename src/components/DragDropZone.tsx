@@ -159,7 +159,11 @@ export function DragDropZone() {
         style={{ height: "100%" }}
       >
         <Flex direction="column" align="center" gap="1">
-          <Text size="5" weight="bold" color={isDragActive ? store.accentColor as any : "gray"}>
+          <Text
+            size="5"
+            weight="bold"
+            color={isDragActive ? (store.accentColor as any) : "gray"}
+          >
             {isProcessing
               ? "Processing..."
               : isDragActive

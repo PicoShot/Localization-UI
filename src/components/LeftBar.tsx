@@ -67,7 +67,7 @@ export function LeftBar({ activeTab, setActiveTab }: LeftBarProps) {
           <Button
             size="3"
             variant="outline"
-            color={activeTab === "editor" ? store.accentColor as any : "gray"}
+            color={activeTab === "editor" ? (store.accentColor as any) : "gray"}
             style={{
               justifyContent: isCompact ? "center" : "flex-start",
               cursor: "pointer",
@@ -86,7 +86,9 @@ export function LeftBar({ activeTab, setActiveTab }: LeftBarProps) {
           <Button
             size="3"
             variant="outline"
-            color={activeTab === "settings" ? store.accentColor as any : "gray"}
+            color={
+              activeTab === "settings" ? (store.accentColor as any) : "gray"
+            }
             style={{
               justifyContent: isCompact ? "center" : "flex-start",
               cursor: "pointer",
