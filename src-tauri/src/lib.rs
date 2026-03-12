@@ -8,8 +8,8 @@ pub fn run() {
             use tauri::Manager;
 
             let window = app.get_webview_window("main").expect("no main window");
-            window.unminimize();
-            window.set_focus();
+            let _ = window.unminimize();
+            let _ = window.set_focus();
         }));
     }
 
