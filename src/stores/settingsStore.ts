@@ -73,7 +73,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   keyListGroupByPrefix: false,
 
   sessionUserName: "",
-  sessionServerUrl: "ws://localhost:9001/ws",
+  sessionServerUrl: "wss://live.picoshot.net/ws",
 
   loadSettings: async () => {
     try {
@@ -93,7 +93,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           keyListSortByName: parsed.keyListSortByName ?? false,
           keyListGroupByPrefix: parsed.keyListGroupByPrefix ?? false,
           sessionUserName: parsed.sessionUserName ?? "",
-          sessionServerUrl: parsed.sessionServerUrl ?? "ws://localhost:9001/ws",
+          sessionServerUrl: "wss://live.picoshot.net/ws",
         });
       }
     } catch (e) {
