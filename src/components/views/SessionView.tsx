@@ -274,11 +274,6 @@ export function SessionView() {
                 </Tooltip>
               </Flex>
             </Flex>
-            {store.isOwner && (
-              <Badge size="1" color="amber" variant="soft">
-                <Crown size={10} /> Owner
-              </Badge>
-            )}
           </Flex>
         </Card>
 
@@ -311,6 +306,11 @@ export function SessionView() {
                   {user.name}
                   {user.id === store.myId && " (You)"}
                 </Text>
+                {user.id === store.myId && (
+                  <Badge size="1" color="amber" variant="soft">
+                    <Crown size={10} /> Owner
+                  </Badge>
+                )}
                 {user.selectedKey && (
                   <Tooltip content={`Editing: ${user.selectedKey}`}>
                     <Text
@@ -338,9 +338,7 @@ export function SessionView() {
                     >
                       <IconButton
                         size="1"
-                        variant={
-                          store.followingUserId === user.id ? "solid" : "ghost"
-                        }
+                        variant="ghost"
                         color={
                           store.followingUserId === user.id
                             ? (accentColor as never)
@@ -353,7 +351,7 @@ export function SessionView() {
                         }
                         style={{ cursor: "pointer" }}
                       >
-                        <Eye size={10} />
+                        <Eye size={15} />
                       </IconButton>
                     </Tooltip>
                     <Tooltip content="Bring here">
@@ -363,7 +361,7 @@ export function SessionView() {
                         onClick={() => store.bringHere(user.id)}
                         style={{ cursor: "pointer" }}
                       >
-                        <Navigation size={10} />
+                        <Navigation size={15} />
                       </IconButton>
                     </Tooltip>
                     {store.isOwner && (
@@ -375,7 +373,7 @@ export function SessionView() {
                           onClick={() => store.kickUser(user.id)}
                           style={{ cursor: "pointer" }}
                         >
-                          <UserX size={10} />
+                          <UserX size={15} />
                         </IconButton>
                       </Tooltip>
                     )}
@@ -433,34 +431,38 @@ export function SessionView() {
                 </Text>
               </Box>
             ) : (
-              <Flex direction="column" gap="2">
-                {locales.map((locale) => (
-                  <Flex
-                    align="center"
-                    justify="between"
-                    gap="2"
-                    key={locale.languageCode}
-                  >
-                    <Text size="1">{GetLanguageName(locale.languageCode)}</Text>
-                    <Select.Root
-                      size="1"
-                      value={permLangMap[locale.languageCode] ?? "write"}
-                      onValueChange={(v) =>
-                        setPermLangMap((prev) => ({
-                          ...prev,
-                          [locale.languageCode]: v as "read" | "write",
-                        }))
-                      }
+              <ScrollArea style={{ maxHeight: "250px" }}>
+                <Flex direction="column" gap="2" pr="3">
+                  {locales.map((locale) => (
+                    <Flex
+                      align="center"
+                      justify="between"
+                      gap="2"
+                      key={locale.languageCode}
                     >
-                      <Select.Trigger />
-                      <Select.Content>
-                        <Select.Item value="write">Read & Write</Select.Item>
-                        <Select.Item value="read">Read Only</Select.Item>
-                      </Select.Content>
-                    </Select.Root>
-                  </Flex>
-                ))}
-              </Flex>
+                      <Text size="1">
+                        {GetLanguageName(locale.languageCode)}
+                      </Text>
+                      <Select.Root
+                        size="1"
+                        value={permLangMap[locale.languageCode] ?? "write"}
+                        onValueChange={(v) =>
+                          setPermLangMap((prev) => ({
+                            ...prev,
+                            [locale.languageCode]: v as "read" | "write",
+                          }))
+                        }
+                      >
+                        <Select.Trigger />
+                        <Select.Content>
+                          <Select.Item value="write">Read & Write</Select.Item>
+                          <Select.Item value="read">Read Only</Select.Item>
+                        </Select.Content>
+                      </Select.Root>
+                    </Flex>
+                  ))}
+                </Flex>
+              </ScrollArea>
             )}
           </Flex>
         )}
