@@ -1,7 +1,7 @@
 cargo-features = ["profile-rustflags", "trim-paths"]
 [package]
 name = "localization-ui"
-version = "0.1.0"
+version = "0.1.1"
 description = "A Localization Editor for Unity"
 authors = ["PicoShot <picoshot241@gmail.com>"]
 edition = "2024"
