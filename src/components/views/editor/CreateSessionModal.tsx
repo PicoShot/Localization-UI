@@ -113,7 +113,9 @@ export function CreateSessionModal({ open, onClose }: CreateSessionModalProps) {
                         >
                           <Select.Trigger />
                           <Select.Content>
-                            <Select.Item value="write">Read & Write</Select.Item>
+                            <Select.Item value="write">
+                              Read & Write
+                            </Select.Item>
                             <Select.Item value="read">Read Only</Select.Item>
                           </Select.Content>
                         </Select.Root>

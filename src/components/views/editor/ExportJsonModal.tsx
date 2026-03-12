@@ -1,8 +1,16 @@
 import { useState, useMemo } from "react";
-import { Dialog, Button, Flex, Text, Checkbox, Box } from "@radix-ui/themes";
+import {
+  Dialog,
+  Button,
+  Flex,
+  Text,
+  Checkbox,
+  ScrollArea,
+} from "@radix-ui/themes";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { useEditorStore } from "@/stores/editorStore";
+import { GetLanguageName } from "@/utils/languages";
 
 interface ExportJsonModalProps {
   open: boolean;
@@ -103,21 +111,26 @@ export function ExportJsonModal({ open, onOpenChange }: ExportJsonModalProps) {
             </Text>
           </Flex>
 
-          <Box style={{ maxHeight: "200px", overflowY: "auto" }}>
-            <Flex direction="column" gap="2" pl="2">
+          <ScrollArea type="auto" style={{ maxHeight: "250px" }}>
+            <Flex direction="column" gap="2" pl="2" pr="3">
               {localeCodes.map((code) => (
-                <Text as="label" size="2" key={code}>
+                <Text
+                  as="label"
+                  size="2"
+                  key={code}
+                  style={{ cursor: "pointer" }}
+                >
                   <Flex gap="2">
                     <Checkbox
                       checked={selectedLocales.has(code)}
                       onCheckedChange={() => handleToggle(code)}
                     />{" "}
-                    {code}
+                    {GetLanguageName(code)}
                   </Flex>
                 </Text>
               ))}
             </Flex>
-          </Box>
+          </ScrollArea>
         </Flex>
 
         <Flex gap="3" mt="5" justify="end">
