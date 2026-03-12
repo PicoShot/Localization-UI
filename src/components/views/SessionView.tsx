@@ -229,7 +229,13 @@ export function SessionView() {
       <Flex
         direction="column"
         gap="3"
-        style={{ flex: 1, minWidth: 0, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}
+        style={{
+          flex: 1,
+          minWidth: 0,
+          minHeight: 0,
+          overflowY: "auto",
+          overflowX: "hidden",
+        }}
       >
         <Flex align="center" gap="2">
           <Wifi size={16} color="var(--green-11)" />

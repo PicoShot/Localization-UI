@@ -71,5 +71,7 @@ export async function translateText(
     throw new Error("Invalid response format from DeepL API");
   }
 
-  return data.translations.map((t: { text: string }) => postprocessText(t.text));
+  return data.translations.map((t: { text: string }) =>
+    postprocessText(t.text),
+  );
 }

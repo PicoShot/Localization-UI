@@ -70,7 +70,6 @@ export const useUpdateStore = create<UpdateState>((set, get) => ({
           }
         });
 
-        // Prompt the user to restart the application
         await message(
           "Update installed successfully. Please restart the application to apply the update.",
           { title: "Update Installed" },

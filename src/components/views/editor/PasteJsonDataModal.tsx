@@ -26,10 +26,12 @@ export function PasteJsonDataModal({
 
         <Flex direction="column" gap="3" mt="3">
           <Text size="2">
-            • <strong>Replace:</strong> Clears all existing data and applies the pasted data.
+            • <strong>Replace:</strong> Clears all existing data and applies the
+            pasted data.
           </Text>
           <Text size="2">
-            • <strong>Merge:</strong> Only fills values that are currently empty.
+            • <strong>Merge:</strong> Only fills values that are currently
+            empty.
           </Text>
 
           <Flex gap="3" mt="4" justify="end">

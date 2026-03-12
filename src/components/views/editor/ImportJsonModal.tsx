@@ -99,7 +99,6 @@ export function ImportJsonModal({ open, onOpenChange }: ImportJsonModalProps) {
     onOpenChange(false);
   };
 
-  // Reset state when modal is closed/opened
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       setFilePath(null);
