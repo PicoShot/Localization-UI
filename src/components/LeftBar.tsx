@@ -6,11 +6,13 @@ import {
   DoubleArrowLeftIcon,
   DoubleArrowRightIcon,
   ExitIcon,
+  DownloadIcon,
 } from "@radix-ui/react-icons";
 import { Users } from "lucide-react";
 import { useEditorStore } from "@/stores/editorStore";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { useSessionStore } from "@/stores/sessionStore";
+import { useUpdateStore } from "@/stores/updateStore";
 
 interface LeftBarProps {
   activeTab: "editor" | "settings" | "sessions";
@@ -21,6 +23,8 @@ export function LeftBar({ activeTab, setActiveTab }: LeftBarProps) {
   const closeFiles = useEditorStore((s) => s.closeFiles);
   const store = useSettingsStore();
   const connected = useSessionStore((s) => s.connected);
+  const { updateAvailable, updateDetails, isUpdating, installUpdate } =
+    useUpdateStore();
   const [isCompact, setIsCompact] = useState(true);
 
   const renderWithTooltip = (content: string, children: React.ReactElement) => {
@@ -147,7 +151,36 @@ export function LeftBar({ activeTab, setActiveTab }: LeftBarProps) {
 
       <Box style={{ flex: 1 }} />
 
-      <Flex direction="column" style={{ paddingRight: "var(--space-4)" }}>
+      <Flex
+        direction="column"
+        gap="2"
+        style={{ paddingRight: "var(--space-4)" }}
+      >
+        {updateAvailable &&
+          renderWithTooltip(
+            `Update to v${updateDetails?.version || "new"}`,
+            <Button
+              variant="solid"
+              color="green"
+              size="3"
+              onClick={installUpdate}
+              disabled={isUpdating}
+              style={{
+                justifyContent: isCompact ? "center" : "flex-start",
+                cursor: "pointer",
+                width: "100%",
+                padding: isCompact ? 0 : undefined,
+              }}
+            >
+              <DownloadIcon />
+              {!isCompact && (
+                <Text size="3">
+                  {isUpdating ? "Updating..." : "Update App"}
+                </Text>
+              )}
+            </Button>,
+          )}
+
         {renderWithTooltip(
           "Close Files",
           <Button

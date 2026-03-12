@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Flex } from "@radix-ui/themes";
 import { useEditorStore } from "@/stores/editorStore";
 import { useSettingsStore } from "@/stores/settingsStore";
+import { useUpdateStore } from "@/stores/updateStore";
 import { MainPage } from "@/pages/MainPage";
 import { EditorPage } from "@/pages/EditorPage";
 import { TitleBar } from "@/components/TitleBar";
@@ -13,6 +14,7 @@ function App() {
   useEffect(() => {
     useSettingsStore.getState().loadSettings();
     useEditorStore.getState().restoreSession();
+    useUpdateStore.getState().checkUpdate();
     getCurrentWindow().show();
   }, []);
 
