@@ -14,7 +14,11 @@ pub fn run() {
         }));
     }
 
-    builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+    #[cfg(desktop)]
+    {
+        builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+    }
+
     builder = builder.plugin(tauri_plugin_os::init());
     builder = builder.plugin(tauri_plugin_keyring::init());
     builder = builder.plugin(tauri_plugin_websocket::init());
