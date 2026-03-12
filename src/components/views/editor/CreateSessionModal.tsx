@@ -89,35 +89,37 @@ export function CreateSessionModal({ open, onClose }: CreateSessionModalProps) {
                 gap="2"
                 style={{ paddingLeft: "var(--space-2)" }}
               >
-                <ScrollArea type="auto" style={{ flex: 1 }}>
-                  {locales.map((locale) => (
-                    <Flex
-                      align="center"
-                      justify="between"
-                      gap="2"
-                      key={locale.languageCode}
-                    >
-                      <Text size="2">
-                        {GetLanguageName(locale.languageCode)}
-                      </Text>
-                      <Select.Root
-                        size="1"
-                        value={langPerms[locale.languageCode] ?? "write"}
-                        onValueChange={(v) =>
-                          setLangPerms((prev) => ({
-                            ...prev,
-                            [locale.languageCode]: v as "read" | "write",
-                          }))
-                        }
+                <ScrollArea type="auto" style={{ maxHeight: "250px" }}>
+                  <Flex direction="column" gap="2" pr="3">
+                    {locales.map((locale) => (
+                      <Flex
+                        align="center"
+                        justify="between"
+                        gap="2"
+                        key={locale.languageCode}
                       >
-                        <Select.Trigger />
-                        <Select.Content>
-                          <Select.Item value="write">Read & Write</Select.Item>
-                          <Select.Item value="read">Read Only</Select.Item>
-                        </Select.Content>
-                      </Select.Root>
-                    </Flex>
-                  ))}
+                        <Text size="2">
+                          {GetLanguageName(locale.languageCode)}
+                        </Text>
+                        <Select.Root
+                          size="1"
+                          value={langPerms[locale.languageCode] ?? "write"}
+                          onValueChange={(v) =>
+                            setLangPerms((prev) => ({
+                              ...prev,
+                              [locale.languageCode]: v as "read" | "write",
+                            }))
+                          }
+                        >
+                          <Select.Trigger />
+                          <Select.Content>
+                            <Select.Item value="write">Read & Write</Select.Item>
+                            <Select.Item value="read">Read Only</Select.Item>
+                          </Select.Content>
+                        </Select.Root>
+                      </Flex>
+                    ))}
+                  </Flex>
                 </ScrollArea>
               </Flex>
             )}
