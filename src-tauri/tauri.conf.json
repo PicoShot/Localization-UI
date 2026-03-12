@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "localization-ui",
+  "productName": "Localization-UI",
   "version": "0.1.0",
   "identifier": "com.picoshot.localization-ui",
   "build": {
